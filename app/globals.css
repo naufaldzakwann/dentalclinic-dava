@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand: teal medis untuk nuansa klinik yang bersih */
+  --color-brand-50: #f0fbf8;
+  --color-brand-100: #dcf5ee;
+  --color-brand-200: #b9ebdf;
+  --color-brand-300: #85dcc9;
+  --color-brand-400: #4ec7ae;
+  --color-brand-500: #22b394;
+  --color-brand-600: #0f927b;
+  --color-brand-700: #0d7564;
+  --color-brand-800: #0e5d51;
+  --color-brand-900: #0d4d44;
+
+  /* Netral hangat untuk latar klinis */
+  --color-cream: #fafbf9;
+  --color-ink: #0c1f26;
+  --color-ink-soft: #46606b;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-card: 0 1px 2px rgb(12 31 38 / 0.04), 0 12px 32px -12px rgb(12 31 38 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(12 31 38 / 0.05), 0 24px 48px -16px rgb(13 117 100 / 0.22);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--color-brand-200);
+}
+
+/* Animasi halaman utama */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-fade-in {
+  animation: fade-up 0.9s ease-out 0.15s both;
+}
+
+@keyframes hint-bob {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 8px);
+  }
+}
+
+/* Aksesibilitas: hormati preferensi reduksi gerak */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

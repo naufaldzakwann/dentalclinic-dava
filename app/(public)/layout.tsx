@@ -10,7 +10,7 @@ export default function PublicLayout({
   return (
     <>
       <Nav />
-      <main>{children}</main>
+      <main id="konten-utama">{children}</main>
       <Footer />
       <WhatsAppFab />
     </>

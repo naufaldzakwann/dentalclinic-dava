@@ -6,6 +6,7 @@ import { site } from "@/lib/site";
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -62,6 +63,9 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className={`${jakarta.variable} antialiased`}>
+        <a href="#konten-utama" className="skip-link">
+          Lewati ke konten utama
+        </a>
         {children}
         <script
           type="application/ld+json"

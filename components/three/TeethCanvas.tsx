@@ -169,6 +169,13 @@ function TeethRig({
     rig.current.rotation.y = -2.1 + Math.sin(t * 0.3) * 0.08 + drag.yaw * 0.55;
     rig.current.position.y = Math.sin(t * 0.7) * 0.045 + 0.45 * tt;
 
+    // gigi premolar hero: kanan-tengah di desktop, tengah-bawah di mobile.
+    // Offset layar dikonversi ke koordinat lokal rig (rig dirotasi ±2.1 rad).
+    const isWide = (camera as THREE.PerspectiveCamera).aspect > 1.05;
+    const wx = isWide ? 1.25 : 0;
+    const rigRot = rig.current.rotation.y;
+    heroPos.set(wx * Math.cos(rigRot), isWide ? 0.3 : 0.74, wx * Math.sin(rigRot));
+
     const hero = heroRef.current;
     for (const tooth of data.teeth) {
       const show = p > 0.28 || tooth.isHero;

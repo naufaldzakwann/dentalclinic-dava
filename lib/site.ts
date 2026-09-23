@@ -92,7 +92,7 @@ export const services: Service[] = [
   },
 ];
 
-export const featuredSlugs = ["scaling", "tambal-gigi", "bleaching", "ortodonti", "gigi-anak", "cabut-gigi"];
+export const featuredSlugs = ["scaling", "tambal-gigi", "bleaching", "ortodonti", "gigi-anak"];
 
 export const testimonials = [
   {

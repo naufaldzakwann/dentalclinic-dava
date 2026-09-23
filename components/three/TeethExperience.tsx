@@ -113,17 +113,17 @@ export default function TeethExperience() {
   return (
     <section ref={trackRef} aria-label="Pengalaman 3D senyum sehat" className="relative h-[320vh]">
       <div
-        className="sticky top-0 h-screen overflow-hidden select-none"
+        className="sticky top-0 h-screen overflow-hidden select-none noise"
         style={{ touchAction: "pan-y" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
       >
-        {/* Cahaya latar lembut */}
-        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(52%_46%_at_50%_36%,rgba(13,148,136,0.17),transparent_72%)]" />
-        <div aria-hidden className="absolute -top-32 right-[-10%] h-[28rem] w-[28rem] rounded-full bg-brand-200/40 blur-3xl" />
-        <div aria-hidden className="absolute bottom-[-12%] left-[-8%] h-[26rem] w-[26rem] rounded-full bg-sky-100/70 blur-3xl" />
+        {/* Cahaya latar lembut — pusatnya di sisi kanan (panggung gigi 3D) */}
+        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(46%_52%_at_66%_38%,rgba(13,148,136,0.16),transparent_72%)]" />
+        <div aria-hidden className="absolute -top-32 right-[-6%] h-[30rem] w-[30rem] rounded-full bg-brand-200/45 blur-3xl" />
+        <div aria-hidden className="absolute bottom-[-12%] left-[-10%] h-[24rem] w-[24rem] rounded-full bg-sky-100/70 blur-3xl" />
 
         {webglRef.current ? (
           <TeethCanvas progressRef={progressRef} dragRef={dragRef} reducedRef={reducedRef} />
@@ -135,35 +135,38 @@ export default function TeethExperience() {
         <div
           ref={l1}
           data-layer="1"
-          className="absolute inset-x-0 bottom-[7vh] z-10 px-6 text-center"
+          className="absolute inset-0 z-10 flex items-end sm:items-center"
         >
-          <div className="hero-fade-in">
-          <p className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/80 px-4 py-1.5 text-xs font-semibold tracking-wide text-brand-700 backdrop-blur">
-            Praktik Kedokteran Gigi
-          </p>
-          <h1 className="mx-auto max-w-2xl text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl lg:text-6xl">
-            Senyum sehat dimulai dari{" "}
-            <span className="text-brand-600">detail kecil</span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-base text-ink-soft sm:text-lg">
-            Perawatan gigi yang telaten dan tanpa rasa cemas — bersama drg Dava Fathiyatuzzakiyah.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <a
-              href={waLink(waBookingMessage)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lift transition hover:bg-brand-700"
-            >
-              Booking Janji Temu
-            </a>
-            <a
-              href="/layanan"
-              className="rounded-full border border-ink/10 bg-white/80 px-6 py-3 text-sm font-semibold text-ink backdrop-blur transition hover:border-brand-300"
-            >
-              Lihat Layanan
-            </a>
-          </div>
+          <div className="hero-fade-in w-full px-6 pb-16 sm:pb-0 sm:pl-14 sm:pr-0">
+            <p className="mb-5 inline-flex items-center gap-2 rounded-full bg-brand-50 px-4 py-1.5 text-xs font-semibold tracking-wide text-brand-800 ring-1 ring-brand-200">
+              Praktik Kedokteran Gigi
+            </p>
+            <h1 className="max-w-xl text-4xl font-extrabold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-[3.75rem]">
+              Senyum sehat dimulai dari{" "}
+              <span className="text-brand-600">detail kecil.</span>
+            </h1>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-ink-soft sm:text-lg">
+              Perawatan gigi yang telaten dan tanpa rasa cemas — bersama drg Dava Fathiyatuzzakiyah.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a
+                href={waLink(waBookingMessage)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-brand-700 active:translate-y-0 active:scale-[0.98]"
+              >
+                Booking Janji Temu
+              </a>
+              <a
+                href="/layanan"
+                className="rounded-full bg-white/80 px-6 py-3 text-sm font-semibold text-ink ring-1 ring-ink/10 backdrop-blur transition hover:-translate-y-0.5 hover:ring-brand-300 active:translate-y-0"
+              >
+                Lihat Layanan
+              </a>
+            </div>
+            <p className="tabular mt-6 text-xs text-ink-soft">
+              Senin–Jumat 09.00–17.00 · Sabtu 09.00–14.00 · <span className="text-ink font-medium">By appointment</span>
+            </p>
           </div>
         </div>
 

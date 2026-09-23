@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { waLink, waBookingMessage } from "@/lib/wa";
 import StaticTooth from "./StaticTooth";
 
 // Canvas dimuat hanya di sisi klien (butuh WebGL)
@@ -149,14 +149,12 @@ export default function TeethExperience() {
               Perawatan gigi yang telaten dan tanpa rasa cemas — bersama drg Dava Fathiyatuzzakiyah.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href={waLink(waBookingMessage)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/booking"
                 className="rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-brand-700 active:translate-y-0 active:scale-[0.98]"
               >
                 Booking Janji Temu
-              </a>
+              </Link>
               <a
                 href="/layanan"
                 className="rounded-full bg-white/80 px-6 py-3 text-sm font-semibold text-ink ring-1 ring-ink/10 backdrop-blur transition hover:-translate-y-0.5 hover:ring-brand-300 active:translate-y-0"
@@ -193,14 +191,12 @@ export default function TeethExperience() {
               Janji temu cepat lewat WhatsApp — atau lihat dulu pilihan perawatannya.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-              <a
-                href={waLink(waBookingMessage)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/booking"
                 className="rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lift transition hover:bg-brand-700"
               >
-                Chat WhatsApp Sekarang
-              </a>
+                Booking Online
+              </Link>
               <a
                 href="/kontak"
                 className="rounded-full border border-ink/10 bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand-400"

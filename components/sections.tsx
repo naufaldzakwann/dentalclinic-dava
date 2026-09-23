@@ -280,16 +280,23 @@ export function CtaBand() {
             Ceritakan keluhan Anda, kami bantu urus sisanya
           </h2>
           <p className="mt-3 max-w-md text-[15px] leading-relaxed text-white/60">
-            Ceritakan keluhan Anda lewat WhatsApp — nanti kami bantu rekomendasikan perawatan yang paling tepat.
+            Buat janji temu online dalam 3 langkah, atau ceritakan keluhan Anda lewat WhatsApp —
+            kami bantu rekomendasikan perawatan yang paling tepat.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href="/booking"
+              className="rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-brand-400 active:translate-y-0"
+            >
+              Booking Online
+            </Link>
             <a
               href={waLink(waBookingMessage)}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-brand-400 active:translate-y-0"
+              className="rounded-full px-6 py-3 text-sm font-semibold text-white/80 transition hover:text-white"
             >
-              Chat WhatsApp
+              Lebih suka WhatsApp? Chat →
             </a>
             <Link
               href="/layanan"

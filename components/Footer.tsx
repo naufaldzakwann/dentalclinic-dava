@@ -29,6 +29,8 @@ export default function Footer() {
             <li><Link className="transition hover:text-white" href="/tentang">Tentang drg Dava</Link></li>
             <li><Link className="transition hover:text-white" href="/kontak">Kontak</Link></li>
             <li><Link className="transition hover:text-white" href="/galeri">Galeri</Link></li>
+            <li><Link className="transition hover:text-white" href="/booking">Booking Online</Link></li>
+            <li><Link className="transition hover:text-white" href="/kebijakan-privasi">Kebijakan Privasi</Link></li>
           </ul>
         </nav>
 

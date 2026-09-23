@@ -52,14 +52,12 @@ export default function Nav() {
           ))}
         </nav>
 
-        <a
-          href={waLink(waBookingMessage)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href="/booking"
           className="hidden rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-brand-700 active:translate-y-0 active:scale-[0.98] md:inline-flex"
         >
           Booking
-        </a>
+        </Link>
 
         <button
           type="button"
@@ -89,13 +87,21 @@ export default function Nav() {
               </li>
             ))}
             <li className="pt-3 pb-1">
+              <Link
+                href="/booking"
+                className="block rounded-full bg-brand-600 px-5 py-2.5 text-center text-sm font-semibold text-white"
+              >
+                Booking Online
+              </Link>
+            </li>
+            <li className="pb-1">
               <a
                 href={waLink(waBookingMessage)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block rounded-full bg-brand-600 px-5 py-2.5 text-center text-sm font-semibold text-white"
+                className="block rounded-full bg-white px-5 py-2.5 text-center text-sm font-semibold text-ink ring-1 ring-ink/10"
               >
-                Booking Janji Temu
+                Chat WhatsApp
               </a>
             </li>
           </ul>

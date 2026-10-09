@@ -9,6 +9,7 @@ function Kicker({ children }: { children: React.ReactNode }) {
     <p className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-brand-700">
       <span aria-hidden className="h-px w-8 bg-brand-400" />
       {children}
+      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent-400" />
     </p>
   );
 }
@@ -42,9 +43,10 @@ export function ServicesPreview() {
         {/* Kartu utama: lebih besar, menonjol */}
         <a
           href={`/layanan#${first.slug}`}
-          className="group relative flex flex-col overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-brand-700 to-brand-600 p-8 shadow-lift transition hover:-translate-y-1 md:row-span-2"
+          className="group relative flex flex-col overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-brand-800 via-brand-600 to-brand-400 p-8 shadow-lift transition hover:-translate-y-1 md:row-span-2"
         >
-          <div aria-hidden className="absolute -right-14 -top-14 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+          <div aria-hidden className="glow-drift absolute -right-14 -top-14 h-44 w-44 rounded-full bg-accent-300/30 blur-2xl" />
+          <div aria-hidden className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <span className="mb-8 grid h-12 w-12 place-items-center rounded-2xl bg-white/15 text-white">
             <ToothIcon width={24} height={24} />
           </span>
@@ -160,7 +162,7 @@ export function Testimonials() {
     <section className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
       <Kicker>Kata pasien</Kicker>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <figure className="flex flex-col justify-between rounded-[1.75rem] bg-ink p-8 text-white shadow-lift sm:p-10">
+        <figure className="flex flex-col justify-between rounded-[1.75rem] bg-gradient-to-br from-ink to-brand-900 p-8 text-white shadow-lift sm:p-10">
           <blockquote className="text-xl font-medium leading-relaxed text-white sm:text-2xl">
             &ldquo;{featuredQuote.text}&rdquo;
           </blockquote>
@@ -178,7 +180,7 @@ export function Testimonials() {
         <div className="grid gap-4">
           {supporting.map((t) => (
             <figure key={t.name} className="rounded-[1.75rem] bg-white p-6 shadow-card">
-              <div className="flex gap-0.5 text-amber-400" aria-label="Rating 5 dari 5">
+              <div className="flex gap-0.5 text-accent-500" aria-label="Rating 5 dari 5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <StarIcon key={i} />
                 ))}
@@ -269,9 +271,9 @@ export function Faq() {
 export function CtaBand() {
   return (
     <section className="mx-auto max-w-6xl px-5 pb-24 pt-4 sm:pb-28">
-      <div className="noise relative overflow-hidden rounded-[2.5rem] bg-ink px-7 py-14 text-left shadow-lift sm:px-14">
-        <div aria-hidden className="absolute -right-20 -top-28 h-72 w-72 rounded-full bg-brand-500/20 blur-3xl" />
-        <div aria-hidden className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-brand-400/10 blur-3xl" />
+      <div className="noise relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-ink via-[#0d2f39] to-brand-900 px-7 py-14 text-left shadow-lift sm:px-14">
+        <div aria-hidden className="glow-drift absolute -right-20 -top-28 h-72 w-72 rounded-full bg-brand-400/25 blur-3xl" />
+        <div aria-hidden className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-accent-400/15 blur-3xl" />
         <div className="relative">
           <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-300">
             <SmileIcon width={18} height={18} /> Mulai dari konsultasi santai
@@ -286,7 +288,7 @@ export function CtaBand() {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               href="/booking"
-              className="rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-brand-400 active:translate-y-0"
+              className="rounded-full bg-gradient-to-r from-accent-400 to-accent-500 px-6 py-3 text-sm font-bold text-ink shadow-card transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0"
             >
               Booking Online
             </Link>

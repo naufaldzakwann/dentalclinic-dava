@@ -6,7 +6,7 @@ import { logout, setBookingStatus } from "./actions";
 export const dynamic = "force-dynamic";
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
-  pending: { label: "Pending", className: "bg-amber-50 text-amber-700 ring-amber-200" },
+  pending: { label: "Pending", className: "bg-accent-100 text-accent-600 ring-accent-200" },
   confirmed: { label: "Terkonfirmasi", className: "bg-brand-50 text-brand-800 ring-brand-200" },
   completed: { label: "Selesai", className: "bg-cream text-ink ring-ink/10" },
   cancelled: { label: "Batal", className: "bg-red-50 text-red-700 ring-red-200" },

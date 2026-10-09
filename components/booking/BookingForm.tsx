@@ -395,7 +395,7 @@ export default function BookingForm() {
         <button
           type="submit"
           disabled={!service || !date || !slotTime || !name || !phone || !consent || submitting}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lift transition enabled:hover:-translate-y-0.5 enabled:hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-brand-500 px-7 py-3.5 text-sm font-semibold text-white shadow-lift transition enabled:hover:-translate-y-0.5 enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {submitting ? "Mengirim…" : "Kirim Booking"}
           {!submitting && <ArrowRightIcon width={16} height={16} />}

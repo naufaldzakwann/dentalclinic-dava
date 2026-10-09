@@ -121,9 +121,9 @@ export default function TeethExperience() {
         onPointerCancel={endDrag}
       >
         {/* Cahaya latar lembut — pusatnya di sisi kanan (panggung gigi 3D) */}
-        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(46%_52%_at_66%_38%,rgba(13,148,136,0.16),transparent_72%)]" />
-        <div aria-hidden className="absolute -top-32 right-[-6%] h-[30rem] w-[30rem] rounded-full bg-brand-200/45 blur-3xl" />
-        <div aria-hidden className="absolute bottom-[-12%] left-[-10%] h-[24rem] w-[24rem] rounded-full bg-sky-100/70 blur-3xl" />
+        <div aria-hidden className="glow-drift absolute inset-0 bg-[radial-gradient(46%_52%_at_66%_38%,rgba(20,179,146,0.17),transparent_72%)]" />
+        <div aria-hidden className="absolute -top-32 right-[-6%] h-[30rem] w-[30rem] rounded-full bg-brand-300/30 blur-3xl" />
+        <div aria-hidden className="absolute bottom-[-12%] left-[-10%] h-[24rem] w-[24rem] rounded-full bg-brand-200/60 blur-3xl" />
 
         {webglRef.current ? (
           <TeethCanvas progressRef={progressRef} dragRef={dragRef} reducedRef={reducedRef} />
@@ -139,11 +139,14 @@ export default function TeethExperience() {
         >
           <div className="hero-fade-in w-full px-6 pb-16 sm:pb-0 sm:pl-14 sm:pr-0">
             <p className="mb-5 inline-flex items-center gap-2 rounded-full bg-brand-50 px-4 py-1.5 text-xs font-semibold tracking-wide text-brand-800 ring-1 ring-brand-200">
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent-400" />
               Praktik Kedokteran Gigi
             </p>
             <h1 className="max-w-xl text-4xl font-extrabold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-[3.75rem]">
               Senyum sehat dimulai dari{" "}
-              <span className="text-brand-600">detail kecil.</span>
+              <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-brand-300 bg-clip-text text-transparent">
+                detail kecil.
+              </span>
             </h1>
             <p className="mt-5 max-w-md text-base leading-relaxed text-ink-soft sm:text-lg">
               Perawatan gigi yang telaten dan tanpa rasa cemas — bersama drg Dava Fathiyatuzzakiyah.
@@ -151,7 +154,7 @@ export default function TeethExperience() {
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/booking"
-                className="rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-brand-700 active:translate-y-0 active:scale-[0.98]"
+                className="rounded-full bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
               >
                 Booking Janji Temu
               </Link>

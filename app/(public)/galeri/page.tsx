@@ -34,10 +34,10 @@ export default function GaleriPage() {
             <div
               className={`grid aspect-[4/3] place-items-center bg-gradient-to-br ${
                 i % 3 === 0
-                  ? "from-brand-100 to-brand-50"
+                  ? "from-brand-200 to-brand-50"
                   : i % 3 === 1
-                    ? "from-sky-100 to-cream"
-                    : "from-brand-50 to-amber-50"
+                    ? "from-accent-100 to-cream"
+                    : "from-brand-100 to-accent-100"
               }`}
             >
               <span className="text-4xl opacity-40 transition group-hover:scale-110" aria-hidden>

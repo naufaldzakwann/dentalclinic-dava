@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const STATUS_META: Record<string, { label: string; className: string; desc: string }> = {
   pending: {
     label: "Menunggu konfirmasi",
-    className: "bg-amber-50 text-amber-700 ring-amber-200",
+    className: "bg-accent-100 text-accent-600 ring-accent-200",
     desc: "Staf klinik akan mengonfirmasi jadwal Anda lewat WhatsApp. Mohon ditunggu ya.",
   },
   confirmed: {

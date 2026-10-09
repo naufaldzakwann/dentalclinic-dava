@@ -54,7 +54,7 @@ export default function Nav() {
 
         <Link
           href="/booking"
-          className="hidden rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-brand-700 active:translate-y-0 active:scale-[0.98] md:inline-flex"
+          className="hidden rounded-full bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98] md:inline-flex"
         >
           Booking
         </Link>
@@ -89,7 +89,7 @@ export default function Nav() {
             <li className="pt-3 pb-1">
               <Link
                 href="/booking"
-                className="block rounded-full bg-brand-600 px-5 py-2.5 text-center text-sm font-semibold text-white"
+                className="block rounded-full bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-2.5 text-center text-sm font-semibold text-white"
               >
                 Booking Online
               </Link>

@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, useGLTF } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 // Referensi model: "Teeth" — Poly by Google (CC BY 3.0) via Poly Pizza.
 // File berisi 28 gigi (Box001–Box031, Box026 tidak ada) + 2 mesh gusi
@@ -83,16 +84,22 @@ function prepareScene(scene: THREE.Group): SceneData {
     const geom = raw.node.geometry.clone();
     geom.translate(-raw.center.x, -raw.center.y, -raw.center.z); // pusat gigi → origin
     geom.scale(S, S, S); // raw unit → unit dunia
+    // Model low-poly punya verteks terbelah (shading datar). Gabungkan verteks
+    // yang berhimpit lalu hitung ulang normal → permukaan enamel jadi halus.
+    const smoothed = mergeVertices(geom, 1e-4);
+    smoothed.computeVertexNormals();
     const mat = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#fbfbf7"),
-      roughness: 0.24,
-      metalness: 0,
-      clearcoat: 0.55,
-      clearcoatRoughness: 0.3,
+      color: new THREE.Color("#f7f2e6"),
+      roughness: 0.18,
+      metalness: 0.02,
+      clearcoat: 0.9,
+      clearcoatRoughness: 0.25,
+      specularIntensity: 1.2,
+      envMapIntensity: 1.15,
       transparent: !isHero,
       opacity: isHero ? 1 : 0,
     });
-    const mesh = new THREE.Mesh(geom, mat);
+    const mesh = new THREE.Mesh(smoothed, mat);
     mesh.position.set(0, 0, 0);
     const wrapper = new THREE.Group();
     wrapper.add(mesh);
@@ -116,6 +123,9 @@ function prepareScene(scene: THREE.Group): SceneData {
       rank: rankByName.get(raw.node.name) ?? 0,
       isHero,
     });
+
+    // Variasi warna email antar gigi — sangat halus agar tidak tampak seragam buatan.
+    mat.color.offsetHSL(0, 0, (teeth.length * 0.004) % 0.014);
   }
 
   const pmRaw = ranked[6] ?? ranked[0];
@@ -177,21 +187,46 @@ function TeethRig({
     heroPos.set(wx * Math.cos(rigRot), isWide ? 0.3 : 0.74, wx * Math.sin(rigRot));
 
     const hero = heroRef.current;
+    const float = new THREE.Vector3(); // vektor bantu, dipakai ulang per gigi
     for (const tooth of data.teeth) {
       const show = p > 0.28 || tooth.isHero;
       tooth.wrapper.visible = show;
       if (tooth.isHero && hero) {
-        // premolar hero: berputar & mengambang di depan, lalu pulang ke slotnya
-        hero.position.lerpVectors(heroPos, tooth.seated, tt);
+        // premolar hero: berputar & mengambang di depan, lalu pulang ke slotnya.
+        // Rotasi di-lerp ke 0 (identitas) sehingga mendarat persis dengan orientasi
+        // gigi-gigi lain di lengkung; idle-float ikut masuk seiring pendaratan.
+        hero.position
+          .lerpVectors(heroPos, tooth.seated, tt)
+          .add(
+            float
+              .set(
+                Math.sin(t * 1.1 + tooth.rank * 0.9) * 0.014,
+                Math.sin(t * 1.4 + tooth.rank * 0.7 + 1.3) * 0.02,
+                Math.cos(t * 0.9 + tooth.rank * 0.6) * 0.014,
+              )
+              .multiplyScalar(tt),
+          );
         hero.scale.setScalar(THREE.MathUtils.lerp(data.premolarScale, 1, tt));
-        hero.rotation.y = data.heroBaseY + 0.65 + t * 0.55 * (1 - tt) + Math.sin(t * 0.5) * 0.05;
+        hero.rotation.y =
+          (data.heroBaseY + 0.65) * (1 - tt) +
+          (t * 0.55 + Math.sin(t * 0.5) * 0.05) * (1 - tt);
         hero.rotation.z = -0.07 * (1 - tt);
         hero.rotation.x = -0.28 * (1 - tt) + drag.pitch * (1 - tt);
         continue;
       }
       const delay = 0.05 + (tooth.rank / 13) * 0.26;
       const e = easeOutBack(clamp01((tt - delay) / 0.42));
-      tooth.wrapper.position.lerpVectors(tooth.scatter, tooth.seated, e);
+      tooth.wrapper.position
+        .lerpVectors(tooth.scatter, tooth.seated, e)
+        .add(
+          float
+            .set(
+              Math.sin(t * 1.1 + tooth.rank * 0.9) * 0.014,
+              Math.sin(t * 1.4 + tooth.rank * 0.7 + 1.3) * 0.02,
+              Math.cos(t * 0.9 + tooth.rank * 0.6) * 0.014,
+            )
+            .multiplyScalar(e),
+        );
       tooth.wrapper.rotation.z = (1 - e) * Math.sin(tooth.rank * 2.7) * 0.3;
       const op = clamp01(e * 1.6);
       tooth.mat.opacity = op;
@@ -227,16 +262,20 @@ export default function TeethCanvas({
       dpr={[1, 1.8]}
       camera={{ fov: 34, position: [0, 0.3, 4.4], near: 0.1, far: 80 }}
       gl={{ alpha: true, antialias: true }}
+      onCreated={({ gl }) => {
+        gl.toneMappingExposure = 1.12;
+      }}
       style={{ position: "absolute", inset: 0 }}
     >
-      <ambientLight intensity={0.45} />
-      <directionalLight position={[3.5, 4, 3.5]} intensity={2.2} />
-      <directionalLight position={[-4.5, 1, 2.5]} intensity={1.6} color="#a8ecdc" />
-      <directionalLight position={[0, -3, 2]} intensity={0.5} color="#eef4fb" />
+      <ambientLight intensity={0.35} />
+      <directionalLight position={[3.5, 4, 3.5]} intensity={2.7} />
+      <directionalLight position={[-4.5, 1, 2.5]} intensity={1.8} color="#a8ecdc" />
+      <directionalLight position={[0, -3, 2]} intensity={0.4} color="#eef4fb" />
       <Environment resolution={128} frames={1}>
-        <Lightformer intensity={2.2} position={[0, 3, 2]} scale={[6, 4, 1]} color="#ffffff" />
-        <Lightformer intensity={0.8} position={[-4, 1, -2]} scale={[4, 3, 1]} color="#d6f7ef" />
-        <Lightformer intensity={0.6} position={[4, -1, 1]} scale={[3, 2, 1]} color="#eef6ff" />
+        <Lightformer intensity={2.6} position={[0, 3, 2]} scale={[6, 4, 1]} color="#ffffff" />
+        <Lightformer intensity={1.1} position={[-4, 1, -2]} scale={[4, 3, 1]} color="#d6f7ef" />
+        <Lightformer intensity={0.7} position={[4, -1, 1]} scale={[3, 2, 1]} color="#eef6ff" />
+        <Lightformer intensity={0.5} position={[-2, -2, -3]} scale={[3, 2, 1]} color="#ffe9c4" />
       </Environment>
       <Suspense fallback={null}>
         <TeethRig progressRef={progressRef} dragRef={dragRef} reducedRef={reducedRef} />

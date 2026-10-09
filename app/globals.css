@@ -1,28 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand: teal medis untuk nuansa klinik yang bersih */
-  --color-brand-50: #f0fbf8;
-  --color-brand-100: #dcf5ee;
-  --color-brand-200: #b9ebdf;
-  --color-brand-300: #85dcc9;
-  --color-brand-400: #4ec7ae;
-  --color-brand-500: #22b394;
-  --color-brand-600: #0f927b;
-  --color-brand-700: #0d7564;
-  --color-brand-800: #0e5d51;
-  --color-brand-900: #0d4d44;
+  /* Brand: teal-emerald segar — hidup tapi tetap klinis */
+  --color-brand-50: #eafbf5;
+  --color-brand-100: #d0f6ea;
+  --color-brand-200: #a5edda;
+  --color-brand-300: #6ddec3;
+  --color-brand-400: #38c9a8;
+  --color-brand-500: #14b392;
+  --color-brand-600: #0a927a;
+  --color-brand-700: #0a7564;
+  --color-brand-800: #0b5c51;
+  --color-brand-900: #0b4a43;
 
-  /* Netral hangat untuk latar klinis */
-  --color-cream: #fafbf9;
-  --color-paper: #f3f7f5; /* latar bagian sekunder, sedikit lebih dalam dari cream */
-  --color-ink: #0c1f26;
-  --color-ink-soft: #46606b;
+  /* Aksen: amber keemasan untuk sorotan, bintang, dan CTA gelap */
+  --color-accent-100: #fdeecd;
+  --color-accent-200: #fbdd9d;
+  --color-accent-300: #f8c96b;
+  --color-accent-400: #f2b13f;
+  --color-accent-500: #e7951d;
+  --color-accent-600: #c67514;
+
+  /* Netral hangat: ivory krem + paper mint agar dua-nada */
+  --color-cream: #fbf8f0;
+  --color-paper: #eef6f1;
+  --color-ink: #0a1f2a;
+  --color-ink-soft: #48616c;
 
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-card: 0 1px 2px rgb(12 31 38 / 0.04), 0 16px 40px -16px rgb(12 31 38 / 0.14);
-  --shadow-lift: 0 2px 4px rgb(12 31 38 / 0.05), 0 28px 56px -18px rgb(13 117 100 / 0.26);
+  --shadow-card: 0 1px 2px rgb(10 31 42 / 0.05), 0 18px 44px -18px rgb(10 31 42 / 0.16);
+  --shadow-lift: 0 2px 6px rgb(10 31 42 / 0.06), 0 30px 60px -18px rgb(10 146 122 / 0.3);
 }
 
 html {
@@ -30,7 +38,10 @@ html {
 }
 
 body {
-  background: var(--color-cream);
+  background:
+    radial-gradient(60% 40% at 85% -5%, rgb(56 201 168 / 0.1), transparent 70%),
+    radial-gradient(50% 35% at -10% 20%, rgb(248 201 107 / 0.08), transparent 70%),
+    var(--color-cream);
   color: var(--color-ink);
   text-wrap: pretty;
 }
@@ -101,6 +112,21 @@ h2 {
   animation: fade-up 0.9s ease-out 0.15s both;
 }
 
+/* Muncul saat masuk viewport (komponen <Reveal>) */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px) scale(0.99);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 @keyframes hint-bob {
   0%,
   100% {
@@ -109,6 +135,19 @@ h2 {
   50% {
     transform: translate(-50%, 8px);
   }
+}
+
+@keyframes glow-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(2%, -4%) scale(1.08);
+  }
+}
+.glow-drift {
+  animation: glow-drift 9s ease-in-out infinite;
 }
 
 /* Aksesibilitas: hormati preferensi reduksi gerak */

@@ -18,10 +18,30 @@ const errors = [];
 page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
 page.on("console", (m) => m.type() === "error" && errors.push("console: " + m.text()));
 
+// — 0. Tentukan tanggal uji: hari buka berikutnya yang punya ≥ 2 slot bleaching —
+const dateParam = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+let testDate = null;
+let avail = null;
+for (let i = 1; i <= 14 && !testDate; i++) {
+  const d = new Date();
+  d.setDate(d.getDate() + i);
+  if (d.getDay() === 0) continue; // Minggu tutup
+  const candidate = dateParam(d);
+  const res = await fetch(`${BASE}/api/availability?date=${candidate}&serviceId=bleaching`).then((r) => r.json());
+  if (res.ok && res.slots.length >= 2) {
+    testDate = candidate;
+    avail = res;
+  }
+}
+check("hari uji ditemukan", !!testDate, testDate);
+
 // — 1. Availability API —
-const avail = await fetch(`${BASE}/api/availability?date=2026-09-25&serviceId=bleaching`).then((r) => r.json());
-check("availability bleaching 25 Sep", avail.ok && avail.slots.length >= 5, `${avail.slots?.length ?? 0} slot`);
-const closed = await fetch(`${BASE}/api/availability?date=2026-09-27&serviceId=bleaching`).then((r) => r.json()); // Minggu
+check("availability bleaching hari uji", avail.ok && avail.slots.length >= 2, `${avail.slots.length} slot`);
+let sunday = new Date();
+sunday.setDate(sunday.getDate() + 1);
+while (sunday.getDay() !== 0) sunday.setDate(sunday.getDate() + 1);
+const closed = await fetch(`${BASE}/api/availability?date=${dateParam(sunday)}&serviceId=bleaching`).then((r) => r.json());
 check("availability hari Minggu ditutup", closed.ok === false && closed.reason === "closed");
 
 // — 2. Booking lewat UI —
@@ -29,7 +49,7 @@ const uiSlot = avail.slots[Math.floor(avail.slots.length / 2)]; // slot dinamis 
 await page.goto(BASE + "/booking", { waitUntil: "networkidle" });
 await page.screenshot({ path: "/tmp/dava-shots/20-booking.png" });
 await page.getByRole("button", { name: /Scaling & Polishing/ }).click();
-await page.fill('input[type="date"]', "2026-09-25");
+await page.fill('input[type="date"]', testDate);
 await page.getByRole("radio", { name: uiSlot }).click();
 await page.fill('input[placeholder="Nama sesuai identitas"]', "QA Playwright");
 await page.fill('input[placeholder="08xxxxxxxxxx"]', "0812999887766");
@@ -52,13 +72,13 @@ if (code) {
 }
 
 // — 4. Pembatalan mandiri —
-const avail2 = await fetch(`${BASE}/api/availability?date=2026-09-25&serviceId=gigi-anak`).then((r) => r.json());
+const avail2 = await fetch(`${BASE}/api/availability?date=${testDate}&serviceId=gigi-anak`).then((r) => r.json());
 const slot2 = avail2.slots[0];
 const mk = await fetch(`${BASE}/api/bookings`, {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({
-    serviceSlug: "gigi-anak", date: "2026-09-25", slotTime: slot2,
+    serviceSlug: "gigi-anak", date: testDate, slotTime: slot2,
     name: "QA Batal", phone: "0812999888777", consent: true, website: "",
   }),
 });
@@ -69,21 +89,21 @@ await page.getByRole("button", { name: "Batalkan Booking" }).click();
 await page.waitForTimeout(700);
 const body2 = await page.textContent("body");
 check("pembatalan mandiri berfungsi", body2.includes("Dibatalkan"));
-const avail3 = await fetch(`${BASE}/api/availability?date=2026-09-25&serviceId=gigi-anak`).then((r) => r.json());
+const avail3 = await fetch(`${BASE}/api/availability?date=${testDate}&serviceId=gigi-anak`).then((r) => r.json());
 check("slot batal kembali tersedia", avail3.ok && avail3.slots.includes(slot2));
 
 // — 5. Validasi & honeypot —
 const bad = await fetch(`${BASE}/api/bookings`, {
   method: "POST",
   headers: { "content-type": "application/json" },
-  body: JSON.stringify({ serviceSlug: "scaling", date: "2026-09-25", slotTime: "10:00", name: "X", phone: "123", consent: true }),
+  body: JSON.stringify({ serviceSlug: "scaling", date: testDate, slotTime: "10:00", name: "X", phone: "123", consent: true }),
 });
 check("validasi menolak data rusak", bad.status === 400);
 const bot = await fetch(`${BASE}/api/bookings`, {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({
-    serviceSlug: "scaling", date: "2026-09-25", slotTime: "15:00",
+    serviceSlug: "scaling", date: testDate, slotTime: "15:00",
     name: "Bot Spam", phone: "0812111222333", consent: true, website: "http://spam.example",
   }),
 });

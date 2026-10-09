@@ -15,7 +15,7 @@ npm run start          # jalankan hasil build
 
 ## Fitur Fase 1
 
-- **Hero 3D scroll-driven** — premolar berputar (auto + bisa di-drag); saat scroll, kamera mundur dan 28 gigi muncul menyusun lengkung atas & bawah **tanpa gusi** (`components/three/`).
+- **Hero 3D scroll-driven** — geraham pertama realistis berputar (auto + bisa di-drag); saat scroll, kamera mundur dan 28 gigi anatomis menyusun lengkung atas & bawah. **Klik gigi mana pun** setelah set terbentuk: gigi "pop" ke depan dan panel info (nama, fungsi, jumlah, usia tumbuh, fakta) muncul di samping (`lib/tooth-info.ts`).
 - **Beranda** — layanan unggulan, keunggulan, testimoni, FAQ, CTA.
 - **Halaman publik** — `/layanan` (harga mulai), `/tentang`, `/kontak`, `/galeri`.
 - **Tombol WhatsApp mengambang** + CTA booking di semua halaman (`lib/wa.ts`).
@@ -59,7 +59,7 @@ Cari komentar `TODO` di kode. Ringkasnya:
 
 ## Kredit Aset
 
-Model 3D ["Teeth"](https://poly.pizza/m/eNR_DPPP1Hp) oleh Poly by Google, lisensi CC BY 3.0, via Poly Pizza. Atribusi tampil di footer situs (syarat lisensi CC BY).
+Model 3D gigi diekstrak dari ["Human mouth detailed"](https://commons.wikimedia.org/wiki/File:3D_model_of_the_human_mouth.stl) oleh Mince (CC BY 4.0, via Wikimedia Commons): 27 gigi dipisah dari mesh mulut, geraham yang hilang di sumber dibuat dengan mirroring, lalu disusun ulang sebagai dua lengkung (`scripts/extract-teeth.mjs` → `public/models/teeth-real.glb`). Atribusi tampil di footer situs (syarat lisensi CC BY).
 
 ## Struktur
 
@@ -72,14 +72,14 @@ components/booking/  form booking multi-langkah
 lib/                 site.ts (konten), wa.ts, db.ts, availability.ts, booking.ts, auth.ts, ratelimit.ts
 prisma/              schema + seed; dev.db (SQLite, di-gitignore)
 scripts/             shots.mjs (QA visual), e2e.mjs (QA end-to-end booking & admin)
-public/models/       teeth.glb (28 gigi + 2 mesh gusi yang disembunyikan)
+public/models/       teeth-real.glb (28 gigi anatomis bernama, hasil ekstraksi)
 ```
 
 ## Catatan Teknis 3D
 
-- Geometri gigi dibake sekali di `prepareScene`: diterjemahkan ke pusatnya lalu diskalakan dari koordinat mentah GLB (~600 ribu unit) ke unit dunia (~3,4).
-- Dua mesh gusi (Box015, Box030) diidentifikasi dari material merah dan tidak ikut dibangun.
-- Premolar hero = salah satu gigi dari set yang sama (rank 6), melayang-berputar, lalu "pulang" ke slotnya saat transisi.
+- Tipe gigi dibaca dari nama node GLB (`tooth_U_M1_R` dst.) — dipakai untuk urutan animasi, label panel info, dan pemilihan hero.
+- Gigi hero = geraham pertama atas: melayang-berputar (mahkota ke atas), lalu "pulang" ke slotnya dengan rotasi lerp ke identitas agar orientasinya persis gigi lain.
+- Skala gigi hero selalu dipulihkan ke 1 di frame biasa — lompatan scroll bisa melewati seluruh fase flight.
 - `prefers-reduced-motion` → langsung tampil set lengkap tanpa animasi.
 
 ## Catatan Teknis Booking

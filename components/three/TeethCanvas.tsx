@@ -6,12 +6,12 @@ import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-// Referensi model: "Teeth" — Poly by Google (CC BY 3.0) via Poly Pizza.
-// File berisi 28 gigi (Box001–Box031, Box026 tidak ada) + 2 mesh gusi
-// (Box015, Box030) yang tidak ikut di-clone → hanya gigi yang tampil.
-const GUM_NODES = new Set(["Box015", "Box030"]);
+// Model: 28 gigi anatomis hasil ekstraksi scripts/extract-teeth.mjs dari
+// "Human mouth detailed" oleh Mince (CC BY 4.0) via Wikimedia Commons.
+// Node bernama tooth_<U|L>_<I1..M2>_<L|R>.
 const ARCH_HEIGHT = 3.4; // tinggi set gigi setelah dinormalisasi
-const HERO_HEIGHT = 1.35; // tinggi premolar di layar hero
+const HERO_HEIGHT = 1.15; // tinggi gigi hero (geraham pertama atas) di layar
+const HERO_NAME = "tooth_U_M1_R";
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smooth = (v: number) => v * v * (3 - 2 * v);
@@ -21,54 +21,44 @@ const easeOutBack = (v: number) => {
   return 1 + c3 * (v - 1) ** 3 + c1 * (v - 1) ** 2;
 };
 
+const TYPE_ORDER: Record<string, number> = { I1: 0, I2: 1, C: 2, PM1: 3, PM2: 4, M1: 5, M2: 6 };
+
 type ToothDatum = {
+  name: string;
   wrapper: THREE.Group;
   seated: THREE.Vector3; // posisi slot asli (unit skala)
   scatter: THREE.Vector3; // posisi awal menyebar (unit skala)
   mat: THREE.MeshPhysicalMaterial;
-  rank: number; // 0 = insisif tengah → naik ke molar
+  rank: number; // 0..13 untuk stagger animasi
   isHero: boolean;
 };
 
 type SceneData = {
   root: THREE.Group;
   teeth: ToothDatum[];
+  meshTooth: Map<THREE.Mesh, ToothDatum>;
+  byName: Map<string, ToothDatum>;
   premolarScale: number;
-  heroBaseY: number; // rotasi dasar premolar agar mahkota menghadap kamera
+  heroBaseY: number; // rotasi dasar gigi hero agar mahkota menghadap kamera
 };
 
 function prepareScene(scene: THREE.Group): SceneData {
   scene.updateMatrixWorld(true);
 
-  type Raw = { node: THREE.Mesh; center: THREE.Vector3; size: THREE.Vector3 };
+  type Raw = { node: THREE.Mesh; name: string; center: THREE.Vector3; size: THREE.Vector3 };
   const raws: Raw[] = [];
   scene.traverse((o) => {
     const m = o as THREE.Mesh;
-    if (m.isMesh && !GUM_NODES.has(m.name)) {
+    if (m.isMesh) {
+      const name = m.name.startsWith("tooth_")
+        ? m.name
+        : m.parent?.name.startsWith("tooth_")
+          ? m.parent.name
+          : m.name;
       const box = new THREE.Box3().setFromObject(m);
-      raws.push({ node: m, center: box.getCenter(new THREE.Vector3()), size: box.getSize(new THREE.Vector3()) });
+      raws.push({ node: m, name, center: box.getCenter(new THREE.Vector3()), size: box.getSize(new THREE.Vector3()) });
     }
   });
-
-  const midY = raws.reduce((s, r) => s + r.center.y, 0) / raws.length;
-  const centroid = (list: Raw[]) => {
-    const c = new THREE.Vector3();
-    list.forEach((r) => c.add(r.center));
-    return c.divideScalar(Math.max(1, list.length));
-  };
-  const arch = {
-    upper: centroid(raws.filter((r) => r.center.y > midY)),
-    lower: centroid(raws.filter((r) => r.center.y <= midY)),
-  };
-
-  // rank: sudut terkecil dari depan lengkung = gigi depan
-  const angleAbs = (r: Raw) => {
-    const c = r.center.y > midY ? arch.upper : arch.lower;
-    return Math.abs(Math.atan2(r.center.z - c.z, r.center.x - c.x));
-  };
-  const ranked = [...raws].sort((a, b) => angleAbs(a) - angleAbs(b));
-  const rankByName = new Map(ranked.map((r, i) => [r.node.name, i] as const));
-  const pickName = ranked[6]?.node.name ?? ranked[0]?.node.name ?? "Box001";
 
   const totalBox = new THREE.Box3();
   raws.forEach((r) => totalBox.expandByObject(r.node));
@@ -76,16 +66,37 @@ function prepareScene(scene: THREE.Group): SceneData {
   const S = ARCH_HEIGHT / fullHeight; // faktor skala mentah → unit dunia
   const fullCenter = totalBox.getCenter(new THREE.Vector3());
 
-  // Bangun root sendiri: geometri dibake (pusat gigi di origin, diskala ke unit dunia)
+  // centroid lengkung atas/bawah berdasarkan nama node (untuk arah scatter)
+  const centroid = (arch: string) => {
+    const c = new THREE.Vector3();
+    let n = 0;
+    for (const r of raws) {
+      if (r.name.includes(`_${arch}_`)) {
+        c.add(r.center);
+        n++;
+      }
+    }
+    return n ? c.divideScalar(n) : new THREE.Vector3();
+  };
+  const archC = { U: centroid("U"), L: centroid("L") };
+
   const root = new THREE.Group();
   const teeth: ToothDatum[] = [];
+  const meshTooth = new Map<THREE.Mesh, ToothDatum>();
+  const byName = new Map<string, ToothDatum>();
+
   for (const raw of raws) {
-    const isHero = raw.node.name === pickName;
+    const parts = raw.name.split("_");
+    const arch = parts[1] ?? "U";
+    const type = parts[2] ?? "I1";
+    const side = parts[3] ?? "R";
+    const typeIndex = TYPE_ORDER[type] ?? 0;
+    const isHero = raw.name === HERO_NAME;
+
     const geom = raw.node.geometry.clone();
     geom.translate(-raw.center.x, -raw.center.y, -raw.center.z); // pusat gigi → origin
     geom.scale(S, S, S); // raw unit → unit dunia
-    // Model low-poly punya verteks terbelah (shading datar). Gabungkan verteks
-    // yang berhimpit lalu hitung ulang normal → permukaan enamel jadi halus.
+    // Gabungkan verteks berhimpit + hitung ulang normal → permukaan enamel halus.
     const smoothed = mergeVertices(geom, 1e-4);
     smoothed.computeVertexNormals();
     const mat = new THREE.MeshPhysicalMaterial({
@@ -99,67 +110,76 @@ function prepareScene(scene: THREE.Group): SceneData {
       transparent: !isHero,
       opacity: isHero ? 1 : 0,
     });
+    mat.color.offsetHSL(0, 0, (teeth.length * 0.004) % 0.014);
     const mesh = new THREE.Mesh(smoothed, mat);
-    mesh.position.set(0, 0, 0);
     const wrapper = new THREE.Group();
     wrapper.add(mesh);
     root.add(wrapper);
 
     const seated = raw.center.clone().sub(fullCenter).multiplyScalar(S); // relatif ke pusat set gigi
-    const archC = raw.center.y > midY ? arch.upper : arch.lower;
-    const outward = new THREE.Vector3(raw.center.x - archC.x, 0, raw.center.z - archC.z);
+    const c = archC[arch as "U" | "L"] ?? archC.U;
+    const outward = new THREE.Vector3(raw.center.x - c.x, 0, raw.center.z - c.z);
     if (outward.lengthSq() < 1e-6) outward.set(1, 0, 0);
     outward.normalize();
     const scatter = seated
       .clone()
       .addScaledVector(outward, 1.15)
-      .add(new THREE.Vector3(0, raw.center.y > midY ? 1.0 : -1.0, 0));
+      .add(new THREE.Vector3(0, arch === "U" ? 1.0 : -1.0, 0));
 
-    teeth.push({
+    const datum: ToothDatum = {
+      name: raw.name,
       wrapper,
       seated,
       scatter,
       mat,
-      rank: rankByName.get(raw.node.name) ?? 0,
+      rank: typeIndex * 2 + (side === "R" ? 0 : 1),
       isHero,
-    });
-
-    // Variasi warna email antar gigi — sangat halus agar tidak tampak seragam buatan.
-    mat.color.offsetHSL(0, 0, (teeth.length * 0.004) % 0.014);
+    };
+    teeth.push(datum);
+    meshTooth.set(mesh, datum);
+    byName.set(raw.name, datum);
   }
 
-  const pmRaw = ranked[6] ?? ranked[0];
-  const premolarScale = pmRaw ? HERO_HEIGHT / (pmRaw.size.y * S) : 1;
-
-  // rotasi dasar: mahkota gigi menghadap keluar lengkung; +π supaya sisi mahkota (bukal) ke kamera
-  const pmArchC = pmRaw ? (pmRaw.center.y > midY ? arch.upper : arch.lower) : new THREE.Vector3();
-  const pmOut = pmRaw
-    ? new THREE.Vector3(pmRaw.center.x - pmArchC.x, 0, pmRaw.center.z - pmArchC.z).normalize()
+  // gigi hero: geraham pertama atas — skala & rotasi dasarnya
+  const heroRaw = raws.find((r) => r.name === HERO_NAME) ?? raws[0];
+  const premolarScale = heroRaw ? HERO_HEIGHT / (heroRaw.size.y * S) : 1;
+  const hc = archC[heroRaw?.name.includes("_U_") ? "U" : "L"];
+  const heroOut = heroRaw
+    ? new THREE.Vector3(heroRaw.center.x - hc.x, 0, heroRaw.center.z - hc.z).normalize()
     : new THREE.Vector3(0, 0, 1);
-  const heroBaseY = Math.atan2(pmOut.x, pmOut.z) + Math.PI;
+  const heroBaseY = Math.atan2(heroOut.x, heroOut.z) + Math.PI;
 
-  return { root, teeth, premolarScale, heroBaseY };
+  return { root, teeth, meshTooth, byName, premolarScale, heroBaseY };
 }
 
 function TeethRig({
   progressRef,
   dragRef,
   reducedRef,
+  selectedName,
+  onSelect,
 }: {
   progressRef: React.RefObject<number>;
   dragRef: React.RefObject<{ yaw: number; pitch: number }>;
   reducedRef: React.RefObject<boolean>;
+  selectedName: string | null;
+  onSelect: (name: string | null) => void;
 }) {
-  const { scene } = useGLTF("/models/teeth.glb");
+  const { scene } = useGLTF("/models/teeth-real.glb");
   const rig = useRef<THREE.Group>(null);
   const heroRef = useRef<THREE.Group>(null);
   const data = useMemo<SceneData>(() => prepareScene(scene), [scene]);
   const camera = useThree((s) => s.camera);
   const heroPos = useMemo(() => new THREE.Vector3(0, 0.74, 0), []);
+  const popLocal = useMemo(() => new THREE.Vector3(), []);
+  const float = useMemo(() => new THREE.Vector3(), []);
+  const downXY = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
-    useGLTF.preload("/models/teeth.glb");
-  }, []);
+    useGLTF.preload("/models/teeth-real.glb");
+    const hero = data.teeth.find((t) => t.isHero);
+    if (hero) heroRef.current = hero.wrapper;
+  }, [data]);
 
   useFrame(({ clock }) => {
     if (!rig.current) return;
@@ -175,47 +195,50 @@ function TeethRig({
     camera.position.set(0, THREE.MathUtils.lerp(0.3, 1.15, tt), z * zoom);
     camera.lookAt(0, THREE.MathUtils.lerp(0.5, 0.1, tt), 0);
 
-    // assemblage: arah depan model ≈ azimut 120° → diputar agar smile menghadap kamera
-    rig.current.rotation.y = -2.1 + Math.sin(t * 0.3) * 0.08 + drag.yaw * 0.55;
+    // model baru menghadap -z secara kanonik → diputar π agar smile menghadap kamera
+    rig.current.rotation.y = Math.PI + Math.sin(t * 0.3) * 0.08 + drag.yaw * 0.55;
     rig.current.position.y = Math.sin(t * 0.7) * 0.045 + 0.45 * tt;
 
-    // gigi premolar hero: kanan-tengah di desktop, tengah-bawah di mobile.
-    // Offset layar dikonversi ke koordinat lokal rig (rig dirotasi ±2.1 rad).
+    // gigi hero: kanan-tengah di desktop, tengah-bawah di mobile.
     const isWide = (camera as THREE.PerspectiveCamera).aspect > 1.05;
     const wx = isWide ? 1.25 : 0;
     const rigRot = rig.current.rotation.y;
     heroPos.set(wx * Math.cos(rigRot), isWide ? 0.3 : 0.74, wx * Math.sin(rigRot));
 
     const hero = heroRef.current;
-    const float = new THREE.Vector3(); // vektor bantu, dipakai ulang per gigi
+    const selectable = p > 0.5;
+    const sel = selectable && selectedName ? data.byName.get(selectedName) : null;
+    // arah pop ke arah kamera dalam koordinat lokal rig
+    popLocal.set(0, 0.32, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), -rigRot);
+
     for (const tooth of data.teeth) {
       const show = p > 0.28 || tooth.isHero;
       tooth.wrapper.visible = show;
-      if (tooth.isHero && hero) {
-        // premolar hero: berputar & mengambang di depan, lalu pulang ke slotnya.
-        // Rotasi di-lerp ke 0 (identitas) sehingga mendarat persis dengan orientasi
-        // gigi-gigi lain di lengkung; idle-float ikut masuk seiring pendaratan.
+      if (tooth.isHero && hero && tt < 0.999) {
+        // geraham hero: berputar & mengambang di depan (mahkota ke atas), lalu pulang
         hero.position
           .lerpVectors(heroPos, tooth.seated, tt)
-          .add(
-            float
-              .set(
-                Math.sin(t * 1.1 + tooth.rank * 0.9) * 0.014,
-                Math.sin(t * 1.4 + tooth.rank * 0.7 + 1.3) * 0.02,
-                Math.cos(t * 0.9 + tooth.rank * 0.6) * 0.014,
-              )
-              .multiplyScalar(tt),
-          );
+          .add(float.set(0, Math.sin(t * 1.3 + 0.4) * 0.02, 0).multiplyScalar(tt));
         hero.scale.setScalar(THREE.MathUtils.lerp(data.premolarScale, 1, tt));
-        hero.rotation.y =
-          (data.heroBaseY + 0.65) * (1 - tt) +
-          (t * 0.55 + Math.sin(t * 0.5) * 0.05) * (1 - tt);
+        hero.rotation.y = (data.heroBaseY + 0.65) * (1 - tt) + (t * 0.55 + Math.sin(t * 0.5) * 0.05) * (1 - tt);
+        hero.rotation.x = (Math.PI + 0.4) * (1 - tt) + drag.pitch * (1 - tt);
         hero.rotation.z = -0.07 * (1 - tt);
-        hero.rotation.x = -0.28 * (1 - tt) + drag.pitch * (1 - tt);
+        continue;
+      }
+      if (sel === tooth) {
+        // dipilih: pop ke depan, membesar, berputar perlahan untuk dipandang
+        tooth.wrapper.position.copy(tooth.seated).addScaledVector(popLocal, 0.85);
+        tooth.wrapper.scale.setScalar(1.5);
+        tooth.wrapper.rotation.set(0, t * 0.8, 0);
+        tooth.mat.opacity = 1;
+        tooth.mat.transparent = false;
+        tooth.mat.depthWrite = true;
         continue;
       }
       const delay = 0.05 + (tooth.rank / 13) * 0.26;
-      const e = easeOutBack(clamp01((tt - delay) / 0.42));
+      const e = tooth.isHero ? 1 : easeOutBack(clamp01((tt - delay) / 0.42));
+      // skala selalu dipulihkan ke 1 — flight bisa terlewati oleh lompatan scroll
+      tooth.wrapper.scale.setScalar(THREE.MathUtils.lerp(tooth.wrapper.scale.x, 1, 0.25));
       tooth.wrapper.position
         .lerpVectors(tooth.scatter, tooth.seated, e)
         .add(
@@ -228,21 +251,37 @@ function TeethRig({
             .multiplyScalar(e),
         );
       tooth.wrapper.rotation.z = (1 - e) * Math.sin(tooth.rank * 2.7) * 0.3;
-      const op = clamp01(e * 1.6);
+      const op = clamp01(e * 1.6) * (sel ? 0.25 : 1);
       tooth.mat.opacity = op;
       tooth.mat.transparent = op < 1;
       tooth.mat.depthWrite = op > 0.5;
     }
   });
 
-  // temukan wrapper hero setelah mount
-  useEffect(() => {
-    const hero = data.teeth.find((t) => t.isHero);
-    if (hero) heroRef.current = hero.wrapper;
-  }, [data]);
-
   return (
-    <group ref={rig}>
+    <group
+      ref={rig}
+      onPointerDown={(e) => {
+        downXY.current = { x: e.nativeEvent.clientX, y: e.nativeEvent.clientY };
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        const d = downXY.current;
+        if (d && Math.hypot(e.nativeEvent.clientX - d.x, e.nativeEvent.clientY - d.y) > 8) return; // drag, bukan klik
+        const datum = data.meshTooth.get(e.object as THREE.Mesh);
+        if (!datum) return;
+        if (progressRef.current <= 0.5) return; // hanya saat set sudah terbentuk
+        onSelect(selectedName === datum.name ? null : datum.name);
+      }}
+      onPointerOver={(e) => {
+        if (progressRef.current > 0.5 && data.meshTooth.has(e.object as THREE.Mesh)) {
+          document.body.style.cursor = "pointer";
+        }
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = "auto";
+      }}
+    >
       <primitive object={data.root} />
     </group>
   );
@@ -252,10 +291,14 @@ export default function TeethCanvas({
   progressRef,
   dragRef,
   reducedRef,
+  selectedName,
+  onSelect,
 }: {
   progressRef: React.RefObject<number>;
   dragRef: React.RefObject<{ yaw: number; pitch: number }>;
   reducedRef: React.RefObject<boolean>;
+  selectedName: string | null;
+  onSelect: (name: string | null) => void;
 }) {
   return (
     <Canvas
@@ -265,6 +308,7 @@ export default function TeethCanvas({
       onCreated={({ gl }) => {
         gl.toneMappingExposure = 1.12;
       }}
+      onPointerMissed={() => onSelect(null)}
       style={{ position: "absolute", inset: 0 }}
     >
       <ambientLight intensity={0.35} />
@@ -278,10 +322,16 @@ export default function TeethCanvas({
         <Lightformer intensity={0.5} position={[-2, -2, -3]} scale={[3, 2, 1]} color="#ffe9c4" />
       </Environment>
       <Suspense fallback={null}>
-        <TeethRig progressRef={progressRef} dragRef={dragRef} reducedRef={reducedRef} />
+        <TeethRig
+          progressRef={progressRef}
+          dragRef={dragRef}
+          reducedRef={reducedRef}
+          selectedName={selectedName}
+          onSelect={onSelect}
+        />
       </Suspense>
     </Canvas>
   );
 }
 
-useGLTF.preload("/models/teeth.glb");
+useGLTF.preload("/models/teeth-real.glb");

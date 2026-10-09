@@ -61,16 +61,16 @@ export default function Footer() {
         <div className="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-5 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 {site.fullName}. Seluruh hak cipta dilindungi.</p>
           <p>
-            Model 3D &ldquo;Teeth&rdquo; oleh Poly by Google, lisensi{" "}
+            Model 3D gigi berdasarkan &ldquo;Human mouth detailed&rdquo; oleh Mince, lisensi{" "}
             <a
               className="underline decoration-white/30 underline-offset-2 hover:text-white/70"
-              href="https://poly.pizza/m/eNR_DPPP1Hp"
+              href="https://commons.wikimedia.org/wiki/File:3D_model_of_the_human_mouth.stl"
               target="_blank"
               rel="noopener noreferrer"
             >
-              CC BY
+              CC BY 4.0
             </a>{" "}
-            via Poly Pizza.
+            — dipisah & disusun ulang per gigi.
           </p>
         </div>
       </div>

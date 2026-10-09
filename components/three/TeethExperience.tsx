@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { archLabel, parseToothName } from "@/lib/tooth-info";
 import StaticTooth from "./StaticTooth";
 
 // Canvas dimuat hanya di sisi klien (butuh WebGL)
@@ -31,6 +32,10 @@ export default function TeethExperience() {
   const l2 = useRef<HTMLDivElement>(null);
   const l3 = useRef<HTMLDivElement>(null);
   const hint = useRef<HTMLDivElement>(null);
+
+  // gigi yang diklik → panel info
+  const [selected, setSelected] = useState<string | null>(null);
+  const selectedInfo = selected ? parseToothName(selected) : null;
 
   useEffect(() => {
     try {
@@ -74,6 +79,7 @@ export default function TeethExperience() {
       const total = r.height - window.innerHeight;
       const p = total > 0 ? clamp01(-r.top / total) : 1;
       progressRef.current = reducedRef.current ? 1 : p;
+      if (progressRef.current < 0.5) setSelected(null); // set bubar → tutup panel
       apply(progressRef.current);
     };
 
@@ -92,11 +98,11 @@ export default function TeethExperience() {
     };
   }, []);
 
-  // Drag = memutar gigi (horizontal untuk sentuhan agar scroll halaman tetap jalan)
+  // Drag = memutar gigi (horizontal untuk sentuhan agar scroll halaman tetap jalan).
+  // Tanpa setPointerCapture — capture menelan pointerup sehingga klik gigi di canvas mati.
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     draggingRef.current = true;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (!draggingRef.current) return;
@@ -126,9 +132,54 @@ export default function TeethExperience() {
         <div aria-hidden className="absolute bottom-[-12%] left-[-10%] h-[24rem] w-[24rem] rounded-full bg-brand-200/60 blur-3xl" />
 
         {webglRef.current ? (
-          <TeethCanvas progressRef={progressRef} dragRef={dragRef} reducedRef={reducedRef} />
+          <TeethCanvas
+            progressRef={progressRef}
+            dragRef={dragRef}
+            reducedRef={reducedRef}
+            selectedName={selected}
+            onSelect={setSelected}
+          />
         ) : (
           <StaticTooth />
+        )}
+
+        {/* Panel info gigi yang diklik */}
+        {selectedInfo && (
+          <aside className="panel-pop absolute inset-x-4 bottom-24 z-20 rounded-[1.5rem] border border-white/60 bg-white/90 p-6 shadow-lift backdrop-blur-md sm:inset-x-auto sm:bottom-auto sm:right-8 sm:top-1/2 sm:w-80 sm:-translate-y-1/2">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-700">
+                  {archLabel(selectedInfo.arch)}
+                </p>
+                <h3 className="mt-1 text-xl font-bold tracking-tight text-ink">{selectedInfo.name}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelected(null)}
+                aria-label="Tutup info gigi"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-cream text-ink-soft ring-1 ring-ink/10 transition hover:text-ink"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden>
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-ink-soft">{selectedInfo.fungsi}</p>
+            <dl className="mt-4 space-y-2 border-t border-ink/8 pt-4 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-ink-soft">Jumlah</dt>
+                <dd className="text-right font-semibold text-ink">{selectedInfo.jumlah}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-ink-soft">Tumbuh saat</dt>
+                <dd className="text-right font-semibold text-ink">{selectedInfo.erupsi}</dd>
+              </div>
+            </dl>
+            <p className="mt-4 rounded-xl bg-brand-50 px-4 py-3 text-[13px] leading-relaxed text-brand-800 ring-1 ring-brand-100">
+              <span aria-hidden className="mr-1.5">💡</span>
+              {selectedInfo.fakta}
+            </p>
+          </aside>
         )}
 
         {/* Lapisan teks — animasi masuk di div DALAM, wrapper murni inline-style */}
@@ -192,6 +243,9 @@ export default function TeethExperience() {
             <h2 className="text-2xl font-bold text-ink sm:text-3xl">Siap wujudkan senyum sehat?</h2>
             <p className="mt-2 text-sm text-ink-soft sm:text-base">
               Janji temu cepat lewat WhatsApp — atau lihat dulu pilihan perawatannya.
+            </p>
+            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3.5 py-1.5 text-xs font-semibold text-brand-800 ring-1 ring-brand-100">
+              <span aria-hidden>💡</span> Klik gigi mana pun untuk melihat detailnya
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link

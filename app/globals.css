@@ -150,6 +150,37 @@ h2 {
   animation: glow-drift 9s ease-in-out infinite;
 }
 
+/* Panel info gigi: muncul dengan pop spring */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.panel-pop {
+  animation: panel-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@media (min-width: 640px) {
+  /* posisi desktop memakai -translate-y-1/2 — animasi hanya opacity & scale */
+  .panel-pop {
+    animation-name: panel-in-desktop;
+  }
+}
+@keyframes panel-in-desktop {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-50% + 16px)) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
 /* Aksesibilitas: hormati preferensi reduksi gerak */
 @media (prefers-reduced-motion: reduce) {
   html {

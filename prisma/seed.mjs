@@ -7,11 +7,11 @@ import { services } from "../lib/site.ts";
 const { PrismaClient } = prismaPkg;
 
 // Sama seperti lib/booking.ts — dipakai saat membuat/mem-backfill booking.
-function slotKeyFor(dentistId, date, slotTime) {
+function slotKeyFor(clinicLocation, dentistId, date, slotTime) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  return `${dentistId ?? "-"}|${y}${m}${d}|${slotTime}`;
+  return `${clinicLocation}|${dentistId ?? "-"}|${y}${m}${d}|${slotTime}`;
 }
 
 const prisma = new PrismaClient();
@@ -89,6 +89,7 @@ async function main() {
       data: [
         {
           code: seq(1),
+          clinicLocation: "pekanbaru",
           name: "Andi Pratama",
           phone: "081234567001",
           email: "andi@example.com",
@@ -96,19 +97,20 @@ async function main() {
           dentistId: dentist.id,
           date: target,
           slotTime: "09:00",
-          slotKey: slotKeyFor(dentist.id, target, "09:00"),
+          slotKey: slotKeyFor("pekanbaru", dentist.id, target, "09:00"),
           status: "confirmed",
           notes: "Tambal gigi geraham kanan bawah.",
         },
         {
           code: seq(2),
+          clinicLocation: "pekanbaru",
           name: "Rina Marlina",
           phone: "081234567002",
           serviceId: demoService.id,
           dentistId: dentist.id,
           date: target,
           slotTime: "11:00",
-          slotKey: slotKeyFor(dentist.id, target, "11:00"),
+          slotKey: slotKeyFor("pekanbaru", dentist.id, target, "11:00"),
           status: "pending",
         },
       ],
@@ -124,7 +126,7 @@ async function main() {
   for (const b of needKey) {
     await prisma.booking.update({
       where: { id: b.id },
-      data: { slotKey: slotKeyFor(b.dentistId, b.date, b.slotTime) },
+      data: { slotKey: slotKeyFor(b.clinicLocation ?? "pekanbaru", b.dentistId, b.date, b.slotTime) },
     });
   }
 

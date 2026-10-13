@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { logout, setBookingStatus } from "./actions";
+import { getClinicLocation } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,8 @@ export default async function AdminDashboard() {
     (b) => b.date.getTime() === startOfToday.getTime(),
   ).length;
   const pendingCount = bookings.filter((b) => b.status === "pending").length;
+  const pekanbaruCount = bookings.filter((b) => b.clinicLocation === "pekanbaru").length;
+  const talukCount = bookings.filter((b) => b.clinicLocation === "taluk-kuantan").length;
 
   const byDate = new Map<string, typeof bookings>();
   for (const b of bookings) {
@@ -83,11 +86,13 @@ export default async function AdminDashboard() {
       </header>
 
       <div className="mx-auto max-w-6xl px-5 pt-8">
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
             { label: "Menunggu konfirmasi", value: pendingCount, hint: "booking berstatus pending" },
             { label: "Hari ini", value: todayCount, hint: "booking kunjungan hari ini" },
             { label: "Total booking", value: bookings.length, hint: "rentang 30 hari lalu – 60 hari ke depan" },
+            { label: "Pekanbaru", value: pekanbaruCount, hint: "booking di klinik Pekanbaru" },
+            { label: "Taluk Kuantan", value: talukCount, hint: "booking di klinik Taluk Kuantan" },
           ].map((s) => (
             <div key={s.label} className="rounded-3xl bg-white p-5 shadow-card">
               <p className="text-xs font-semibold uppercase tracking-widest text-ink-soft">{s.label}</p>
@@ -116,7 +121,7 @@ export default async function AdminDashboard() {
                           <span className="ml-2 font-normal text-ink-soft">{b.phone}</span>
                         </p>
                         <p className="text-xs text-ink-soft">
-                          {b.service.name} · {b.code}
+                          {getClinicLocation(b.clinicLocation)?.city ?? "Pekanbaru"} · {b.service.name} · {b.code}
                           {b.notes ? ` · ${b.notes}` : ""}
                         </p>
                       </div>

@@ -2,277 +2,120 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { archLabel, parseToothName } from "@/lib/tooth-info";
+import { useEffect, useState } from "react";
 import StaticTooth from "./StaticTooth";
+import { useSitePreferences } from "@/components/SitePreferences";
+import ClinicSelector from "@/components/ClinicSelector";
 
-// Canvas dimuat hanya di sisi klien (butuh WebGL)
 const TeethCanvas = dynamic(() => import("./TeethCanvas"), {
   ssr: false,
-  loading: () => (
-    <div className="absolute inset-0 grid place-items-center" aria-hidden>
-      <span className="text-sm text-brand-700 animate-pulse">Menyiapkan pengalaman 3D…</span>
-    </div>
-  ),
+  loading: () => <StaticTooth />,
 });
 
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-const smooth = (v: number) => v * v * (3 - 2 * v);
-
 export default function TeethExperience() {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef(0);
-  const dragRef = useRef({ yaw: 0, pitch: 0 });
-  const draggingRef = useRef(false);
-  const webglRef = useRef(true);
-  const reducedRef = useRef(false);
-
-  // Lapis teks yang opasitasnya di-update imperatif (tanpa re-render saat scroll)
-  const l1 = useRef<HTMLDivElement>(null);
-  const l2 = useRef<HTMLDivElement>(null);
-  const l3 = useRef<HTMLDivElement>(null);
-  const hint = useRef<HTMLDivElement>(null);
-
-  // gigi yang diklik → panel info
-  const [selected, setSelected] = useState<string | null>(null);
-  const selectedInfo = selected ? parseToothName(selected) : null;
+  const { t, language } = useSitePreferences();
+  const [webglAvailable, setWebglAvailable] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [compactLayout, setCompactLayout] = useState(false);
 
   useEffect(() => {
     try {
-      const c = document.createElement("canvas");
-      webglRef.current = !!(c.getContext("webgl2") || c.getContext("webgl"));
+      const canvas = document.createElement("canvas");
+      setWebglAvailable(Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl")));
     } catch {
-      webglRef.current = false;
+      setWebglAvailable(false);
     }
-    reducedRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  }, []);
 
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    let raf = 0;
-    const apply = (p: number) => {
-      const heroOut = 1 - smooth(clamp01((p - 0.05) / 0.16));
-      if (l1.current) {
-        l1.current.style.opacity = String(heroOut);
-        l1.current.style.transform = `translateY(${-42 * smooth(clamp01((p - 0.05) / 0.22))}px)`;
-        l1.current.style.pointerEvents = heroOut < 0.08 ? "none" : "auto";
-      }
-      const mid = smooth(clamp01((p - 0.47) / 0.13)) * (1 - smooth(clamp01((p - 0.76) / 0.1)));
-      if (l2.current) {
-        l2.current.style.opacity = String(mid);
-        l2.current.style.transform = `translateY(${18 * (1 - mid)}px)`;
-        l2.current.style.pointerEvents = "none";
-      }
-      const end = smooth(clamp01((p - 0.88) / 0.1));
-      if (l3.current) {
-        l3.current.style.opacity = String(end);
-        l3.current.style.transform = `translateY(${24 * (1 - end)}px)`;
-        l3.current.style.pointerEvents = end < 0.08 ? "none" : "auto";
-      }
-      const hintOut = 1 - smooth(clamp01((p - 0.015) / 0.06));
-      if (hint.current) hint.current.style.opacity = String(hintOut);
-    };
-
-    const update = () => {
-      const r = track.getBoundingClientRect();
-      const total = r.height - window.innerHeight;
-      const p = total > 0 ? clamp01(-r.top / total) : 1;
-      progressRef.current = reducedRef.current ? 1 : p;
-      if (progressRef.current < 0.5) setSelected(null); // set bubar → tutup panel
-      apply(progressRef.current);
-    };
-
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(motionQuery.matches);
+    const compactQuery = window.matchMedia("(max-width: 767px)");
+    setCompactLayout(compactQuery.matches);
+    const updateMotionPreference = () => setReducedMotion(motionQuery.matches);
+    motionQuery.addEventListener("change", updateMotionPreference);
+    const updateLayoutPreference = () => setCompactLayout(compactQuery.matches);
+    compactQuery.addEventListener("change", updateLayoutPreference);
     return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      motionQuery.removeEventListener("change", updateMotionPreference);
+      compactQuery.removeEventListener("change", updateLayoutPreference);
     };
   }, []);
-
-  // Drag = memutar gigi (horizontal untuk sentuhan agar scroll halaman tetap jalan).
-  // Tanpa setPointerCapture — capture menelan pointerup sehingga klik gigi di canvas mati.
-  const onPointerDown = (e: React.PointerEvent) => {
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-    draggingRef.current = true;
-  };
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!draggingRef.current) return;
-    const d = dragRef.current;
-    d.yaw += (e.movementX || 0) * 0.006;
-    if (e.pointerType !== "touch") {
-      d.pitch = Math.max(-0.55, Math.min(0.55, d.pitch + (e.movementY || 0) * 0.004));
-    }
-  };
-  const endDrag = () => {
-    draggingRef.current = false;
-  };
 
   return (
-    <section ref={trackRef} aria-label="Pengalaman 3D senyum sehat" className="relative h-[320vh]">
-      <div
-        className="sticky top-0 h-screen overflow-hidden select-none noise"
-        style={{ touchAction: "pan-y" }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-      >
-        {/* Cahaya latar lembut — pusatnya di sisi kanan (panggung gigi 3D) */}
-        <div aria-hidden className="glow-drift absolute inset-0 bg-[radial-gradient(46%_52%_at_66%_38%,rgba(20,179,146,0.17),transparent_72%)]" />
-        <div aria-hidden className="absolute -top-32 right-[-6%] h-[30rem] w-[30rem] rounded-full bg-brand-300/30 blur-3xl" />
-        <div aria-hidden className="absolute bottom-[-12%] left-[-10%] h-[24rem] w-[24rem] rounded-full bg-brand-200/60 blur-3xl" />
+    <section aria-labelledby="hero-title" className="relative isolate overflow-hidden bg-cream">
+      <div aria-hidden className="hero-wash absolute inset-0" />
+      <div aria-hidden className="ambient-orb ambient-orb-a absolute -right-40 -top-40 h-[38rem] w-[38rem] rounded-full bg-brand-200/55 blur-3xl" />
+      <div aria-hidden className="ambient-orb ambient-orb-b absolute -bottom-60 left-[28%] h-[34rem] w-[34rem] rounded-full bg-accent-200/40 blur-3xl" />
 
-        {webglRef.current ? (
-          <TeethCanvas
-            progressRef={progressRef}
-            dragRef={dragRef}
-            reducedRef={reducedRef}
-            selectedName={selected}
-            onSelect={setSelected}
-          />
-        ) : (
-          <StaticTooth />
-        )}
-
-        {/* Panel info gigi yang diklik */}
-        {selectedInfo && (
-          <aside className="panel-pop absolute inset-x-4 bottom-24 z-20 rounded-[1.5rem] border border-white/60 bg-white/90 p-6 shadow-lift backdrop-blur-md sm:inset-x-auto sm:bottom-auto sm:right-8 sm:top-1/2 sm:w-80 sm:-translate-y-1/2">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-700">
-                  {archLabel(selectedInfo.arch)}
-                </p>
-                <h3 className="mt-1 text-xl font-bold tracking-tight text-ink">{selectedInfo.name}</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelected(null)}
-                aria-label="Tutup info gigi"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-cream text-ink-soft ring-1 ring-ink/10 transition hover:text-ink"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden>
-                  <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
-              </button>
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-ink-soft">{selectedInfo.fungsi}</p>
-            <dl className="mt-4 space-y-2 border-t border-ink/8 pt-4 text-sm">
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft">Jumlah</dt>
-                <dd className="text-right font-semibold text-ink">{selectedInfo.jumlah}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft">Tumbuh saat</dt>
-                <dd className="text-right font-semibold text-ink">{selectedInfo.erupsi}</dd>
-              </div>
-            </dl>
-            <p className="mt-4 rounded-xl bg-brand-50 px-4 py-3 text-[13px] leading-relaxed text-brand-800 ring-1 ring-brand-100">
-              <span aria-hidden className="mr-1.5">💡</span>
-              {selectedInfo.fakta}
-            </p>
-          </aside>
-        )}
-
-        {/* Lapisan teks — animasi masuk di div DALAM, wrapper murni inline-style */}
-        <div
-          ref={l1}
-          data-layer="1"
-          className="absolute inset-0 z-10 flex items-end sm:items-center"
-        >
-          <div className="hero-fade-in w-full px-6 pb-16 sm:pb-0 sm:pl-14 sm:pr-0">
-            <p className="mb-5 inline-flex items-center gap-2 rounded-full bg-brand-50 px-4 py-1.5 text-xs font-semibold tracking-wide text-brand-800 ring-1 ring-brand-200">
-              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent-400" />
-              Praktik Kedokteran Gigi
-            </p>
-            <h1 className="max-w-xl text-4xl font-extrabold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-[3.75rem]">
-              Senyum sehat dimulai dari{" "}
-              <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-brand-300 bg-clip-text text-transparent">
-                detail kecil.
-              </span>
-            </h1>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-ink-soft sm:text-lg">
-              Perawatan gigi yang telaten dan tanpa rasa cemas — bersama drg Dava Fathiyatuzzakiyah.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href="/booking"
-                className="rounded-full bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
-              >
-                Booking Janji Temu
-              </Link>
-              <a
-                href="/layanan"
-                className="rounded-full bg-white/80 px-6 py-3 text-sm font-semibold text-ink ring-1 ring-ink/10 backdrop-blur transition hover:-translate-y-0.5 hover:ring-brand-300 active:translate-y-0"
-              >
-                Lihat Layanan
-              </a>
-            </div>
-            <p className="tabular mt-6 text-xs text-ink-soft">
-              Senin–Jumat 09.00–17.00 · Sabtu 09.00–14.00 · <span className="text-ink font-medium">By appointment</span>
-            </p>
-          </div>
-        </div>
-
-        <div
-          ref={l2}
-          data-layer="2"
-          className="absolute inset-x-0 bottom-[9vh] z-10 px-6 text-center opacity-0"
-        >
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-600">Ketelitian kami</p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">Dari satu gigi, ke senyum yang utuh</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft sm:text-base">
-            Setiap gigi punya perannya. Kami rawat satu per satu dengan detail — hingga seluruh rahang kembali sehat.
+      <div className="mx-auto grid min-h-[calc(100svh-4rem)] max-w-7xl items-center gap-3 px-5 pb-8 pt-10 sm:px-8 md:grid-cols-[0.92fr_1.08fr] md:gap-0 md:py-12">
+        <div className="relative z-10 max-w-xl md:py-12">
+          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-200/80 bg-white/75 px-4 py-2 text-xs font-bold uppercase tracking-[0.17em] text-brand-800 shadow-sm backdrop-blur">
+            <span aria-hidden className="h-2 w-2 rounded-full bg-brand-500" />
+            {t("hero.kicker", "Praktik Kedokteran Gigi")}
           </p>
-        </div>
+          <h1 id="hero-title" className="max-w-[15ch] text-[2.65rem] font-extrabold leading-[1.04] tracking-[-0.055em] text-ink sm:text-5xl lg:text-[4.1rem]">
+            {t("hero.title", "Gigi yang sehat merupakan cerminan hidup sehat.")}
+          </h1>
+          <p className="mt-5 max-w-lg text-[15px] leading-7 text-ink-soft sm:text-lg sm:leading-8">
+            {t("hero.description", "Perawatan gigi yang telaten dan nyaman bersama drg Dava Fathiyatuzzakiyah. Setiap langkah dijelaskan dengan tenang, agar Anda tahu apa yang akan dilakukan.")}
+          </p>
 
-        <div
-          ref={l3}
-          data-layer="3"
-          className="absolute inset-x-0 bottom-[6vh] z-10 px-6 text-center opacity-0"
-        >
-          <div className="mx-auto max-w-lg rounded-3xl border border-brand-200/70 bg-white/85 p-7 shadow-lift backdrop-blur">
-            <h2 className="text-2xl font-bold text-ink sm:text-3xl">Siap wujudkan senyum sehat?</h2>
-            <p className="mt-2 text-sm text-ink-soft sm:text-base">
-              Janji temu cepat lewat WhatsApp — atau lihat dulu pilihan perawatannya.
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href="/booking"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand-700 px-6 py-3 text-sm font-bold text-white shadow-lift transition duration-200 hover:-translate-y-0.5 hover:bg-brand-800 active:translate-y-0 active:scale-[0.98]"
+            >
+              {t("hero.book", "Buat Janji Temu")}
+            </Link>
+            <Link
+              href="/layanan"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-brand-200 bg-white/80 px-6 py-3 text-sm font-bold text-brand-800 transition duration-200 hover:border-brand-400 hover:bg-white"
+            >
+              {t("hero.explore", "Jelajahi Perawatan")}
+            </Link>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-brand-800">{t("location.heroPrompt", "Pilih lokasi klinik")}</span>
+            <ClinicSelector />
+          </div>
+
+          <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3 text-sm font-medium text-ink-soft">
+            <p className="inline-flex items-center gap-2">
+              <span aria-hidden className="grid h-5 w-5 place-items-center rounded-full bg-brand-100 text-brand-800">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="m3.4 8.2 2.8 2.7 6.4-6.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </span>
+              {t("hero.clear", "Penjelasan yang jelas")}
             </p>
-            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3.5 py-1.5 text-xs font-semibold text-brand-800 ring-1 ring-brand-100">
-              <span aria-hidden>💡</span> Klik gigi mana pun untuk melihat detailnya
+            <p className="inline-flex items-center gap-2">
+              <span aria-hidden className="grid h-5 w-5 place-items-center rounded-full bg-brand-100 text-brand-800">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="m3.4 8.2 2.8 2.7 6.4-6.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </span>
+              {t("hero.scheduled", "Janji temu terjadwal")}
             </p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/booking"
-                className="rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lift transition hover:bg-brand-700"
-              >
-                Booking Online
-              </Link>
-              <a
-                href="/kontak"
-                className="rounded-full border border-ink/10 bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand-400"
-              >
-                Lokasi &amp; Kontak
-              </a>
-            </div>
           </div>
         </div>
 
-        {/* Petunjuk scroll */}
-        <div
-          ref={hint}
-          className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 text-ink-soft"
-          style={{ animation: "hint-bob 1.6s ease-in-out infinite" }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+        <div className="relative -mx-5 h-[40svh] min-h-72 sm:-mx-8 sm:h-[54svh] md:mx-0 md:h-[min(78svh,700px)] md:min-h-[31rem]">
+          <div aria-hidden className="tooth-stage absolute inset-0 overflow-hidden rounded-[2.5rem] md:rounded-[3.5rem]">
+            <div className="absolute inset-[8%] rounded-full border border-white/70" />
+            <div className="absolute inset-[16%] rounded-full border border-brand-200/45" />
+            <div className="absolute left-1/2 top-1/2 h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-200/50 blur-3xl" />
+          </div>
+
+          <div className="absolute inset-0">
+            {webglAvailable ? <TeethCanvas reducedMotion={reducedMotion} compact={compactLayout} /> : <StaticTooth />}
+          </div>
+
+          <div className="pointer-events-none absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-white/80 bg-white/80 px-4 py-2.5 text-xs font-semibold text-brand-900 shadow-card backdrop-blur sm:bottom-8">
+            <span aria-hidden className="grid h-6 w-6 place-items-center rounded-full bg-brand-100 text-brand-700">
+              <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2.5v3M10 14.5v3M2.5 10h3m9 0h3M4.7 4.7l2.1 2.1m6.4 6.4 2.1 2.1m0-10.6-2.1 2.1m-6.4 6.4-2.1 2.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+            </span>
+            <span>
+              <span className="block">{t("hero.model", "Model gigi anatomi 3D")}</span>
+              <span className="mt-0.5 block text-[10px] font-medium text-ink-soft">{t("hero.drag", "Seret untuk putar · klik kanan / dua jari untuk geser")}</span>
+            </span>
+          </div>
+          <p className="sr-only">{language === "en" ? "3D molar with natural enamel and violet lighting." : "Gigi geraham 3D dengan permukaan enamel alami dan pencahayaan violet."}</p>
         </div>
       </div>
     </section>

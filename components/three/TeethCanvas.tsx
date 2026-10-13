@@ -1,335 +1,128 @@
 "use client";
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Lightformer, useGLTF } from "@react-three/drei";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Canvas } from "@react-three/fiber";
+import { Environment, Float, Lightformer, OrbitControls, useGLTF } from "@react-three/drei";
+import { Suspense, useMemo } from "react";
 import * as THREE from "three";
-import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { mergeGeometries, mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-// Model: 28 gigi anatomis hasil ekstraksi scripts/extract-teeth.mjs dari
-// "Human mouth detailed" oleh Mince (CC BY 4.0) via Wikimedia Commons.
-// Node bernama tooth_<U|L>_<I1..M2>_<L|R>.
-const ARCH_HEIGHT = 3.4; // tinggi set gigi setelah dinormalisasi
-const HERO_HEIGHT = 1.15; // tinggi gigi hero (geraham pertama atas) di layar
 const HERO_NAME = "tooth_U_M1_R";
 
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-const smooth = (v: number) => v * v * (3 - 2 * v);
-const easeOutBack = (v: number) => {
-  const c1 = 1.70158;
-  const c3 = c1 + 1;
-  return 1 + c3 * (v - 1) ** 3 + c1 * (v - 1) ** 2;
-};
-
-const TYPE_ORDER: Record<string, number> = { I1: 0, I2: 1, C: 2, PM1: 3, PM2: 4, M1: 5, M2: 6 };
-
-type ToothDatum = {
-  name: string;
-  wrapper: THREE.Group;
-  seated: THREE.Vector3; // posisi slot asli (unit skala)
-  scatter: THREE.Vector3; // posisi awal menyebar (unit skala)
-  mat: THREE.MeshPhysicalMaterial;
-  rank: number; // 0..13 untuk stagger animasi
-  isHero: boolean;
-};
-
-type SceneData = {
-  root: THREE.Group;
-  teeth: ToothDatum[];
-  meshTooth: Map<THREE.Mesh, ToothDatum>;
-  byName: Map<string, ToothDatum>;
-  premolarScale: number;
-  heroBaseY: number; // rotasi dasar gigi hero agar mahkota menghadap kamera
-};
-
-function prepareScene(scene: THREE.Group): SceneData {
+function createHeroGeometry(scene: THREE.Group) {
   scene.updateMatrixWorld(true);
+  const pieces: THREE.BufferGeometry[] = [];
 
-  type Raw = { node: THREE.Mesh; name: string; center: THREE.Vector3; size: THREE.Vector3 };
-  const raws: Raw[] = [];
-  scene.traverse((o) => {
-    const m = o as THREE.Mesh;
-    if (m.isMesh) {
-      const name = m.name.startsWith("tooth_")
-        ? m.name
-        : m.parent?.name.startsWith("tooth_")
-          ? m.parent.name
-          : m.name;
-      const box = new THREE.Box3().setFromObject(m);
-      raws.push({ node: m, name, center: box.getCenter(new THREE.Vector3()), size: box.getSize(new THREE.Vector3()) });
-    }
+  scene.traverse((object) => {
+    const mesh = object as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const toothName = mesh.name.startsWith("tooth_")
+      ? mesh.name
+      : mesh.parent?.name.startsWith("tooth_")
+        ? mesh.parent.name
+        : mesh.name;
+    if (toothName !== HERO_NAME) return;
+
+    const geometry = mesh.geometry.clone();
+    geometry.applyMatrix4(mesh.matrixWorld);
+    pieces.push(geometry);
   });
 
-  const totalBox = new THREE.Box3();
-  raws.forEach((r) => totalBox.expandByObject(r.node));
-  const fullHeight = totalBox.getSize(new THREE.Vector3()).y;
-  const S = ARCH_HEIGHT / fullHeight; // faktor skala mentah → unit dunia
-  const fullCenter = totalBox.getCenter(new THREE.Vector3());
+  if (pieces.length === 0) return null;
 
-  // centroid lengkung atas/bawah berdasarkan nama node (untuk arah scatter)
-  const centroid = (arch: string) => {
-    const c = new THREE.Vector3();
-    let n = 0;
-    for (const r of raws) {
-      if (r.name.includes(`_${arch}_`)) {
-        c.add(r.center);
-        n++;
-      }
-    }
-    return n ? c.divideScalar(n) : new THREE.Vector3();
-  };
-  const archC = { U: centroid("U"), L: centroid("L") };
+  const merged = pieces.length === 1 ? pieces[0] : mergeGeometries(pieces, false);
+  pieces.forEach((geometry) => {
+    if (geometry !== merged) geometry.dispose();
+  });
+  if (!merged) return null;
 
-  const root = new THREE.Group();
-  const teeth: ToothDatum[] = [];
-  const meshTooth = new Map<THREE.Mesh, ToothDatum>();
-  const byName = new Map<string, ToothDatum>();
+  const smoothGeometry = mergeVertices(merged, 1e-4);
+  if (smoothGeometry !== merged) merged.dispose();
+  smoothGeometry.computeVertexNormals();
+  smoothGeometry.computeBoundingBox();
 
-  for (const raw of raws) {
-    const parts = raw.name.split("_");
-    const arch = parts[1] ?? "U";
-    const type = parts[2] ?? "I1";
-    const side = parts[3] ?? "R";
-    const typeIndex = TYPE_ORDER[type] ?? 0;
-    const isHero = raw.name === HERO_NAME;
-
-    const geom = raw.node.geometry.clone();
-    geom.translate(-raw.center.x, -raw.center.y, -raw.center.z); // pusat gigi → origin
-    geom.scale(S, S, S); // raw unit → unit dunia
-    // Gabungkan verteks berhimpit + hitung ulang normal → permukaan enamel halus.
-    const smoothed = mergeVertices(geom, 1e-4);
-    smoothed.computeVertexNormals();
-    const mat = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#f7f2e6"),
-      roughness: 0.18,
-      metalness: 0.02,
-      clearcoat: 0.9,
-      clearcoatRoughness: 0.25,
-      specularIntensity: 1.2,
-      envMapIntensity: 1.15,
-      transparent: !isHero,
-      opacity: isHero ? 1 : 0,
-    });
-    mat.color.offsetHSL(0, 0, (teeth.length * 0.004) % 0.014);
-    const mesh = new THREE.Mesh(smoothed, mat);
-    const wrapper = new THREE.Group();
-    wrapper.add(mesh);
-    root.add(wrapper);
-
-    const seated = raw.center.clone().sub(fullCenter).multiplyScalar(S); // relatif ke pusat set gigi
-    const c = archC[arch as "U" | "L"] ?? archC.U;
-    const outward = new THREE.Vector3(raw.center.x - c.x, 0, raw.center.z - c.z);
-    if (outward.lengthSq() < 1e-6) outward.set(1, 0, 0);
-    outward.normalize();
-    const scatter = seated
-      .clone()
-      .addScaledVector(outward, 1.15)
-      .add(new THREE.Vector3(0, arch === "U" ? 1.0 : -1.0, 0));
-
-    const datum: ToothDatum = {
-      name: raw.name,
-      wrapper,
-      seated,
-      scatter,
-      mat,
-      rank: typeIndex * 2 + (side === "R" ? 0 : 1),
-      isHero,
-    };
-    teeth.push(datum);
-    meshTooth.set(mesh, datum);
-    byName.set(raw.name, datum);
-  }
-
-  // gigi hero: geraham pertama atas — skala & rotasi dasarnya
-  const heroRaw = raws.find((r) => r.name === HERO_NAME) ?? raws[0];
-  const premolarScale = heroRaw ? HERO_HEIGHT / (heroRaw.size.y * S) : 1;
-  const hc = archC[heroRaw?.name.includes("_U_") ? "U" : "L"];
-  const heroOut = heroRaw
-    ? new THREE.Vector3(heroRaw.center.x - hc.x, 0, heroRaw.center.z - hc.z).normalize()
-    : new THREE.Vector3(0, 0, 1);
-  const heroBaseY = Math.atan2(heroOut.x, heroOut.z) + Math.PI;
-
-  return { root, teeth, meshTooth, byName, premolarScale, heroBaseY };
+  const bounds = smoothGeometry.boundingBox;
+  if (!bounds) return smoothGeometry;
+  const center = bounds.getCenter(new THREE.Vector3());
+  const size = bounds.getSize(new THREE.Vector3());
+  const scale = 2.35 / Math.max(size.x, size.y, size.z);
+  smoothGeometry.translate(-center.x, -center.y, -center.z);
+  smoothGeometry.scale(scale, scale, scale);
+  smoothGeometry.computeBoundingSphere();
+  return smoothGeometry;
 }
 
-function TeethRig({
-  progressRef,
-  dragRef,
-  reducedRef,
-  selectedName,
-  onSelect,
-}: {
-  progressRef: React.RefObject<number>;
-  dragRef: React.RefObject<{ yaw: number; pitch: number }>;
-  reducedRef: React.RefObject<boolean>;
-  selectedName: string | null;
-  onSelect: (name: string | null) => void;
-}) {
+function HeroTooth({ reducedMotion, compact }: { reducedMotion: boolean; compact: boolean }) {
   const { scene } = useGLTF("/models/teeth-real.glb");
-  const rig = useRef<THREE.Group>(null);
-  const heroRef = useRef<THREE.Group>(null);
-  const data = useMemo<SceneData>(() => prepareScene(scene), [scene]);
-  const camera = useThree((s) => s.camera);
-  const heroPos = useMemo(() => new THREE.Vector3(0, 0.74, 0), []);
-  const popLocal = useMemo(() => new THREE.Vector3(), []);
-  const float = useMemo(() => new THREE.Vector3(), []);
-  const downXY = useRef<{ x: number; y: number } | null>(null);
+  const geometry = useMemo(() => createHeroGeometry(scene), [scene]);
 
-  useEffect(() => {
-    useGLTF.preload("/models/teeth-real.glb");
-    const hero = data.teeth.find((t) => t.isHero);
-    if (hero) heroRef.current = hero.wrapper;
-  }, [data]);
-
-  useFrame(({ clock }) => {
-    if (!rig.current) return;
-    const t = clock.getElapsedTime();
-    const p = reducedRef.current ? 1 : progressRef.current || 0;
-    const drag = dragRef.current || { yaw: 0, pitch: 0 };
-
-    const tt = smooth(clamp01((p - 0.42) / 0.44)); // 0 = hero → 1 = set lengkap
-    const zoom = (camera as THREE.PerspectiveCamera).aspect < 0.8 ? 1.35 : 1;
-
-    const heroZ = 4.4 - Math.min(p, 0.42) * 0.5;
-    const z = p < 0.42 ? heroZ : THREE.MathUtils.lerp(3.9, 13.2, tt) + (p > 0.86 ? ((p - 0.86) / 0.14) * 0.7 : 0);
-    camera.position.set(0, THREE.MathUtils.lerp(0.3, 1.15, tt), z * zoom);
-    camera.lookAt(0, THREE.MathUtils.lerp(0.5, 0.1, tt), 0);
-
-    // model baru menghadap -z secara kanonik → diputar π agar smile menghadap kamera
-    rig.current.rotation.y = Math.PI + Math.sin(t * 0.3) * 0.08 + drag.yaw * 0.55;
-    rig.current.position.y = Math.sin(t * 0.7) * 0.045 + 0.45 * tt;
-
-    // gigi hero: kanan-tengah di desktop, tengah-bawah di mobile.
-    const isWide = (camera as THREE.PerspectiveCamera).aspect > 1.05;
-    const wx = isWide ? 1.25 : 0;
-    const rigRot = rig.current.rotation.y;
-    heroPos.set(wx * Math.cos(rigRot), isWide ? 0.3 : 0.74, wx * Math.sin(rigRot));
-
-    const hero = heroRef.current;
-    const selectable = p > 0.5;
-    const sel = selectable && selectedName ? data.byName.get(selectedName) : null;
-    // arah pop ke arah kamera dalam koordinat lokal rig
-    popLocal.set(0, 0.32, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), -rigRot);
-
-    for (const tooth of data.teeth) {
-      const show = p > 0.28 || tooth.isHero;
-      tooth.wrapper.visible = show;
-      if (tooth.isHero && hero && tt < 0.999) {
-        // geraham hero: berputar & mengambang di depan (mahkota ke atas), lalu pulang
-        hero.position
-          .lerpVectors(heroPos, tooth.seated, tt)
-          .add(float.set(0, Math.sin(t * 1.3 + 0.4) * 0.02, 0).multiplyScalar(tt));
-        hero.scale.setScalar(THREE.MathUtils.lerp(data.premolarScale, 1, tt));
-        hero.rotation.y = (data.heroBaseY + 0.65) * (1 - tt) + (t * 0.55 + Math.sin(t * 0.5) * 0.05) * (1 - tt);
-        hero.rotation.x = (Math.PI + 0.4) * (1 - tt) + drag.pitch * (1 - tt);
-        hero.rotation.z = -0.07 * (1 - tt);
-        continue;
-      }
-      if (sel === tooth) {
-        // dipilih: pop ke depan, membesar, berputar perlahan untuk dipandang
-        tooth.wrapper.position.copy(tooth.seated).addScaledVector(popLocal, 0.85);
-        tooth.wrapper.scale.setScalar(1.5);
-        tooth.wrapper.rotation.set(0, t * 0.8, 0);
-        tooth.mat.opacity = 1;
-        tooth.mat.transparent = false;
-        tooth.mat.depthWrite = true;
-        continue;
-      }
-      const delay = 0.05 + (tooth.rank / 13) * 0.26;
-      const e = tooth.isHero ? 1 : easeOutBack(clamp01((tt - delay) / 0.42));
-      // skala selalu dipulihkan ke 1 — flight bisa terlewati oleh lompatan scroll
-      tooth.wrapper.scale.setScalar(THREE.MathUtils.lerp(tooth.wrapper.scale.x, 1, 0.25));
-      tooth.wrapper.position
-        .lerpVectors(tooth.scatter, tooth.seated, e)
-        .add(
-          float
-            .set(
-              Math.sin(t * 1.1 + tooth.rank * 0.9) * 0.014,
-              Math.sin(t * 1.4 + tooth.rank * 0.7 + 1.3) * 0.02,
-              Math.cos(t * 0.9 + tooth.rank * 0.6) * 0.014,
-            )
-            .multiplyScalar(e),
-        );
-      tooth.wrapper.rotation.z = (1 - e) * Math.sin(tooth.rank * 2.7) * 0.3;
-      const op = clamp01(e * 1.6) * (sel ? 0.25 : 1);
-      tooth.mat.opacity = op;
-      tooth.mat.transparent = op < 1;
-      tooth.mat.depthWrite = op > 0.5;
-    }
-  });
+  if (!geometry) return null;
 
   return (
-    <group
-      ref={rig}
-      onPointerDown={(e) => {
-        downXY.current = { x: e.nativeEvent.clientX, y: e.nativeEvent.clientY };
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        const d = downXY.current;
-        if (d && Math.hypot(e.nativeEvent.clientX - d.x, e.nativeEvent.clientY - d.y) > 8) return; // drag, bukan klik
-        const datum = data.meshTooth.get(e.object as THREE.Mesh);
-        if (!datum) return;
-        if (progressRef.current <= 0.5) return; // hanya saat set sudah terbentuk
-        onSelect(selectedName === datum.name ? null : datum.name);
-      }}
-      onPointerOver={(e) => {
-        if (progressRef.current > 0.5 && data.meshTooth.has(e.object as THREE.Mesh)) {
-          document.body.style.cursor = "pointer";
-        }
-      }}
-      onPointerOut={() => {
-        document.body.style.cursor = "auto";
-      }}
+    <Float
+      speed={reducedMotion ? 0 : 1.15}
+      rotationIntensity={reducedMotion ? 0 : 0.11}
+      floatIntensity={reducedMotion ? 0 : 0.12}
     >
-      <primitive object={data.root} />
-    </group>
+      <group
+        position={[0, compact ? 0.58 : 0, 0]}
+        scale={compact ? 0.62 : 1}
+        rotation={[Math.PI + 0.4, 0.62, -0.06]}
+      >
+        <mesh geometry={geometry} castShadow receiveShadow>
+          <meshPhysicalMaterial
+            color="#fffaf2"
+            roughness={0.2}
+            metalness={0}
+            clearcoat={0.95}
+            clearcoatRoughness={0.18}
+            specularIntensity={1.15}
+            envMapIntensity={1.1}
+          />
+        </mesh>
+      </group>
+    </Float>
   );
 }
 
-export default function TeethCanvas({
-  progressRef,
-  dragRef,
-  reducedRef,
-  selectedName,
-  onSelect,
-}: {
-  progressRef: React.RefObject<number>;
-  dragRef: React.RefObject<{ yaw: number; pitch: number }>;
-  reducedRef: React.RefObject<boolean>;
-  selectedName: string | null;
-  onSelect: (name: string | null) => void;
-}) {
+export default function TeethCanvas({ reducedMotion, compact }: { reducedMotion: boolean; compact: boolean }) {
   return (
     <Canvas
-      dpr={[1, 1.8]}
-      camera={{ fov: 34, position: [0, 0.3, 4.4], near: 0.1, far: 80 }}
-      gl={{ alpha: true, antialias: true }}
+      dpr={[1, 1.7]}
+      camera={{ fov: 33, position: [0, 0, 4.9], near: 0.1, far: 40 }}
+      gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
-        gl.toneMappingExposure = 1.12;
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = 1.18;
       }}
-      onPointerMissed={() => onSelect(null)}
-      style={{ position: "absolute", inset: 0 }}
+      className="cursor-grab active:cursor-grabbing"
+      style={{ position: "absolute", inset: 0, touchAction: "none" }}
+      aria-label="Render gigi geraham 3D"
     >
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[3.5, 4, 3.5]} intensity={2.7} />
-      <directionalLight position={[-4.5, 1, 2.5]} intensity={1.8} color="#a8ecdc" />
-      <directionalLight position={[0, -3, 2]} intensity={0.4} color="#eef4fb" />
-      <Environment resolution={128} frames={1}>
-        <Lightformer intensity={2.6} position={[0, 3, 2]} scale={[6, 4, 1]} color="#ffffff" />
-        <Lightformer intensity={1.1} position={[-4, 1, -2]} scale={[4, 3, 1]} color="#d6f7ef" />
-        <Lightformer intensity={0.7} position={[4, -1, 1]} scale={[3, 2, 1]} color="#eef6ff" />
-        <Lightformer intensity={0.5} position={[-2, -2, -3]} scale={[3, 2, 1]} color="#ffe9c4" />
+      <ambientLight intensity={0.75} />
+      <directionalLight position={[3, 4.5, 4]} intensity={3.1} color="#ffffff" />
+      <directionalLight position={[-3.5, 1.5, 2]} intensity={2.1} color="#c7a5ff" />
+      <directionalLight position={[0, -3, 1]} intensity={0.75} color="#f3eaff" />
+      <pointLight position={[2, 0, -2]} intensity={18} distance={8} color="#8b5cf6" />
+
+      <Environment resolution={96}>
+        <Lightformer intensity={2.6} position={[0, 3, 2]} scale={[5, 3, 1]} color="#ffffff" />
+        <Lightformer intensity={1.6} position={[-3, 1, -2]} scale={[4, 3, 1]} color="#c8a8ff" />
+        <Lightformer intensity={0.75} position={[3, -2, 1]} scale={[3, 2, 1]} color="#f2eaff" />
       </Environment>
+
       <Suspense fallback={null}>
-        <TeethRig
-          progressRef={progressRef}
-          dragRef={dragRef}
-          reducedRef={reducedRef}
-          selectedName={selectedName}
-          onSelect={onSelect}
-        />
+        <HeroTooth reducedMotion={reducedMotion} compact={compact} />
       </Suspense>
+      <OrbitControls
+        enablePan
+        enableZoom={false}
+        enableDamping
+        dampingFactor={0.08}
+        minPolarAngle={Math.PI / 2 - 0.45}
+        maxPolarAngle={Math.PI / 2 + 0.45}
+        autoRotate={!reducedMotion}
+        autoRotateSpeed={0.55}
+      />
     </Canvas>
   );
 }

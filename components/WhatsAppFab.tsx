@@ -1,13 +1,27 @@
+"use client";
+
 import { waLink, waBookingMessage } from "@/lib/wa";
+import { useSitePreferences } from "@/components/SitePreferences";
 
 export default function WhatsAppFab() {
+  const { clinicLocationId, language, t } = useSitePreferences();
+  const clinicName = clinicLocationId === "pekanbaru"
+    ? "Pekanbaru"
+    : clinicLocationId === "taluk-kuantan"
+      ? "Taluk Kuantan"
+      : null;
+  const message = language === "en"
+    ? "Hello, I would like to make an appointment with drg Dava Fathiyatuzzakiyah."
+    : waBookingMessage;
+  const href = waLink(clinicName ? `${message}\n${language === "en" ? "Clinic" : "Lokasi"}: ${clinicName}` : message);
+
   return (
     <a
-      href={waLink(waBookingMessage)}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat WhatsApp untuk membuat janji temu"
-      className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-lift transition hover:scale-105 hover:bg-[#1ebe5d]"
+      aria-label={t("nav.chat", "Chat WhatsApp untuk membuat janji temu")}
+      className="whatsapp-fab fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-lift transition hover:scale-105 hover:bg-[#1ebe5d]"
     >
       <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
         <path d="M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.104 11.892c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652a12.23 12.23 0 0 0 5.71 1.447h.006c6.585 0 11.946-5.336 11.949-11.896a11.82 11.82 0 0 0-3.48-8.401ZM12.05 21.785h-.004a9.87 9.87 0 0 1-5.031-1.378l-.36-.214-3.741.98 1.005-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.002-5.45 4.437-9.884 9.9-9.884a9.86 9.86 0 0 1 9.882 9.89c-.003 5.452-4.437 9.884-9.886 9.884Zm5.421-7.403c-.297-.149-1.758-.868-2.03-.966-.273-.099-.472-.099-.67.15-.198.296-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.174-.298-.02-.458.13-.607.132-.131.347-.347.52-.52.174-.174.232-.298.347-.497.116-.198.058-.371-.014-.52-.072-.148-.66-1.59-.9-2.174-.238-.571-.48-.494-.66-.503l-.561-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.873.116.57-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413-.074-.149-.271-.232-.568-.381Z" />

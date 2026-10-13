@@ -53,25 +53,27 @@ model BlockedDate {
 }
 
 model Booking {
-  id        String   @id @default(cuid())
-  code      String   @unique // DFA-260924-0001
-  name      String
-  phone     String
-  email     String?
-  serviceId String
-  service   Service  @relation(fields: [serviceId], references: [id])
-  dentistId String?
-  dentist   Dentist? @relation(fields: [dentistId], references: [id])
-  date      DateTime // tengah malam lokal tanggal kunjungan
-  slotTime  String // "10:30"
-  // Kunci slot aktif: "{dentistId}|{YYYYMMDD}|{HH:MM}". Dibuat NULL saat dibatalkan
+  id             String   @id @default(cuid())
+  code           String   @unique // DFA-260924-0001
+  clinicLocation String   @default("pekanbaru")
+  name           String
+  phone          String
+  email          String?
+  serviceId      String
+  service        Service  @relation(fields: [serviceId], references: [id])
+  dentistId      String?
+  dentist        Dentist? @relation(fields: [dentistId], references: [id])
+  date           DateTime // tengah malam lokal tanggal kunjungan
+  slotTime       String // "10:30"
+  // Kunci slot aktif: "{clinicLocation}|{dentistId}|{YYYYMMDD}|{HH:MM}". Dibuat NULL saat dibatalkan
   // agar slot langsung bisa dibooking lagi — pengganti @@unique([dentistId, date, slotTime])
   // yang di SQLite juga menghitung baris cancelled.
-  slotKey   String?  @unique
-  status    String   @default("pending") // pending|confirmed|completed|cancelled|no_show
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  slotKey        String?  @unique
+  status         String   @default("pending") // pending|confirmed|completed|cancelled|no_show
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([date])
+  @@index([clinicLocation, date])
 }

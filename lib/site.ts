@@ -4,16 +4,29 @@
 export const site = {
   name: "drg Dava Fathiyatuzzakiyah",
   fullName: "Praktik Kedokteran Gigi drg Dava Fathiyatuzzakiyah",
-  tagline: "Senyum sehat dimulai dari perawatan yang tepat",
+  tagline: "Gigi yang sehat merupakan cerminan hidup sehat",
   // TODO: ganti nomor WhatsApp asli klinik (format internasional tanpa +/spasi)
   whatsapp: "6281234567890",
   phoneDisplay: "+62 812-3456-7890",
   email: "halo@drgdava.id", // TODO: email asli klinik
-  address: "Jl. Raya Contoh No. 123, Kota, Provinsi", // TODO: alamat asli klinik
-  mapsQuery: "", // TODO: query Google Maps asli, contoh: "drg+Dava+Klinik+Gigi"
   instagram: "https://instagram.com/drgdava", // TODO: akun asli
   url: "https://dentalclinic-dava.vercel.app", // TODO: domain final setelah deploy
 } as const;
+
+export const clinicLocations = [
+  { id: "pekanbaru", city: "Pekanbaru", region: "Riau" },
+  { id: "taluk-kuantan", city: "Taluk Kuantan", region: "Riau" },
+] as const;
+
+export type ClinicLocationId = (typeof clinicLocations)[number]["id"];
+
+export function isClinicLocationId(value: unknown): value is ClinicLocationId {
+  return clinicLocations.some((location) => location.id === value);
+}
+
+export function getClinicLocation(id: string | null | undefined) {
+  return clinicLocations.find((location) => location.id === id) ?? null;
+}
 
 export type Service = {
   slug: string;
@@ -30,7 +43,7 @@ export const services: Service[] = [
     slug: "scaling",
     name: "Scaling & Polishing",
     short: "Pembersihan karang gigi & noda",
-    desc: "Pembersihan karang gigi dan noda kuning dengan scaler ultrasonik, dilanjutkan polishing agar gigi kembali halus dan bersih. Termasuk pemeriksaan kondisi gusi.",
+    desc: "Pembersihan karang gigi dan noda dengan scaler ultrasonik, dilanjutkan polishing agar gigi kembali halus dan bersih. Termasuk pemeriksaan kondisi gusi.",
     priceFrom: 300000,
     minutes: 30,
   },
@@ -45,8 +58,8 @@ export const services: Service[] = [
   {
     slug: "perawatan-saluran-akar",
     name: "Perawatan Saluran Akar",
-    short: "Menyelamatkan gigi mati pusar",
-    desc: "Perawatan gigi yang sarafnya meradang atau mati (gigi pusar) tanpa harus dicabut, dibersihkan tahap demi tahap lalu ditutup permanen.",
+    short: "Membantu mempertahankan gigi yang rusak",
+    desc: "Perawatan gigi yang sarafnya meradang atau mati tanpa harus dicabut, dibersihkan tahap demi tahap lalu ditutup permanen.",
     priceFrom: 1500000,
     minutes: 90,
   },
@@ -125,8 +138,8 @@ export const faqs = [
     a: "Setiap tindakan dimulai dari pemeriksaan dan penjelasan. Jika perlu anestesi, kami memberi sebelum tindakan dimulai, dan intensitasnya disesuaikan agar Anda tetap nyaman.",
   },
   {
-    q: "Berapa biaya perawatannya?",
-    a: "Harga mulai tertera di halaman layanan sebagai gambaran. Biaya final ditentukan setelah pemeriksaan karena kondisi gigi tiap orang berbeda — tidak ada biaya siluman.",
+    q: "Bagaimana menentukan perawatan yang sesuai?",
+    a: "Dokter akan memeriksa kondisi gigi, menjelaskan pilihan yang tersedia, lalu menyusun rencana bersama Anda sebelum tindakan dimulai.",
   },
   {
     q: "Anak saya 4 tahun, apakah bisa dirawat di sini?",
@@ -143,7 +156,3 @@ export const hours = [
   { day: "Sabtu", time: "09.00 – 14.00" },
   { day: "Minggu & Libur Nasional", time: "Tutup" },
 ] as const;
-
-export function rupiah(value: number): string {
-  return "Rp " + value.toLocaleString("id-ID");
-}

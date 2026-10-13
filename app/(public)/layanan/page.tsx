@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import { services, rupiah } from "@/lib/site";
-import { waLink, waBookingMessage } from "@/lib/wa";
+import { services } from "@/lib/site";
 import { serviceIcons } from "@/components/service-icons";
+import { T } from "@/components/SitePreferences";
+import LocationWhatsAppLink from "@/components/LocationWhatsAppLink";
 
 export const metadata: Metadata = {
-  title: "Layanan & Harga",
+  title: "Layanan Perawatan",
   description:
-    "Daftar layanan praktik drg Dava Fathiyatuzzakiyah: scaling, tambal gigi, perawatan saluran akar, cabut gigi, odontektomi, bleaching, behel, dan perawatan gigi anak — dengan harga mulai yang transparan.",
+    "Pilihan perawatan praktik drg Dava Fathiyatuzzakiyah: scaling, tambal gigi, perawatan saluran akar, cabut gigi, odontektomi, pemutihan gigi, behel, dan perawatan gigi anak.",
 };
 
 export default function LayananPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
       <header className="max-w-2xl">
-        <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-brand-600">Layanan</p>
-        <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl">Perawatan &amp; harga</h1>
+        <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-brand-600"><T id="service.page.kicker" fallback="Layanan" /></p>
+        <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl"><T id="service.page.title" fallback="Perawatan untuk senyum sehat" /></h1>
         <p className="mt-4 text-base leading-relaxed text-ink-soft sm:text-lg">
-          Semua harga di bawah adalah <strong>harga mulai</strong> sebagai gambaran. Biaya final
-          ditetapkan setelah pemeriksaan dan kami sepakati di awal — tidak ada biaya siluman.
+          <T id="service.page.description" fallback="Pilih perawatan yang ingin Anda ketahui. Dokter akan memeriksa kondisi gigi dan menjelaskan langkah yang sesuai saat konsultasi." />
         </p>
       </header>
 
@@ -35,28 +35,21 @@ export default function LayananPage() {
                   <Icon width={22} height={22} />
                 </span>
                 <div>
-                  <h2 className="text-lg font-bold text-ink">{s.name}</h2>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-soft">{s.desc}</p>
+                  <h2 className="text-lg font-bold text-ink"><T id={`service.${s.slug}.name`} fallback={s.name} /></h2>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-soft"><T id={`service.${s.slug}.desc`} fallback={s.desc} /></p>
                   <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm">
                     <div className="flex gap-1.5">
-                      <dt className="text-ink-soft">Biaya mulai</dt>
-                      <dd className="font-semibold text-brand-700">
-                        {s.priceFrom ? rupiah(s.priceFrom) : "konsultasi dulu"}
-                      </dd>
-                    </div>
-                    <div className="flex gap-1.5">
-                      <dt className="text-ink-soft">Durasi ±</dt>
-                      <dd className="font-semibold text-ink">{s.minutes} menit</dd>
+                      <dt className="text-ink-soft"><T id="service.duration" fallback="Durasi ±" /></dt>
+                      <dd className="font-semibold text-ink">{s.minutes} <T id="service.minutes" fallback="menit" /></dd>
                     </div>
                   </dl>
-                  <a
-                    href={waLink(`${waBookingMessage}${s.name}. `)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <LocationWhatsAppLink
+                    purpose="service"
+                    serviceSlug={s.slug}
                     className="mt-5 inline-flex rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:bg-brand-700"
                   >
-                    Tanya / Booking via WhatsApp
-                  </a>
+                    <T id="service.ask" fallback="Tanya / Booking via WhatsApp" />
+                  </LocationWhatsAppLink>
                 </div>
               </div>
             </article>
@@ -64,11 +57,6 @@ export default function LayananPage() {
         })}
       </div>
 
-      <p className="mt-8 text-xs text-ink-soft">
-        * Harga dapat berubah sewaktu-waktu; konfirmasi saat booking. Untuk perawatan khusus
-        (odontektomi, PSA dengan kesulitan tertentu), dokter akan menjelaskan estimasi setelah
-        pemeriksaan.
-      </p>
     </div>
   );
 }

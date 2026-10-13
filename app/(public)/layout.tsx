@@ -1,6 +1,9 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import WhatsAppFab from "@/components/WhatsAppFab";
+import MotionDirector from "@/components/MotionDirector";
+import { SitePreferencesProvider } from "@/components/SitePreferences";
+import { T } from "@/components/SitePreferences";
 
 export default function PublicLayout({
   children,
@@ -8,11 +11,17 @@ export default function PublicLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
-      <Nav />
-      <main id="konten-utama">{children}</main>
-      <Footer />
-      <WhatsAppFab />
-    </>
+    <SitePreferencesProvider>
+      <>
+        <a href="#konten-utama" className="skip-link">
+          <T id="common.skip" fallback="Lewati ke konten utama" />
+        </a>
+        <Nav />
+        <main id="konten-utama">{children}</main>
+        <MotionDirector />
+        <Footer />
+        <WhatsAppFab />
+      </>
+    </SitePreferencesProvider>
   );
 }

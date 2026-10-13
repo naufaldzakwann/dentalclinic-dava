@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { site } from "@/lib/site";
-import { waLink, waBookingMessage } from "@/lib/wa";
 import { CheckIcon, ToothIcon } from "@/components/icons";
+import { T } from "@/components/SitePreferences";
+import LocationWhatsAppLink from "@/components/LocationWhatsAppLink";
 
 export const metadata: Metadata = {
   title: "Tentang",
@@ -27,63 +28,55 @@ export default function TentangPage() {
                 <span className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-full bg-brand-600 text-white shadow-card">
                   <ToothIcon width={34} height={34} />
                 </span>
-                <p className="text-sm font-semibold text-brand-800">drg Dava Fathiyatuzzakiyah</p>
-                <p className="mt-1 text-xs text-brand-700/70">Foto profesional menyusul</p>
+                <p className="text-sm font-semibold text-brand-800"><T id="about.title" fallback="drg Dava Fathiyatuzzakiyah" /></p>
+                <p className="mt-1 text-xs text-brand-700/70"><T id="about.photo" fallback="Foto profesional menyusul" /></p>
               </div>
             </div>
           </div>
         </div>
 
         <div>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-brand-600">Tentang</p>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-brand-600"><T id="about.kicker" fallback="Tentang" /></p>
           <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-            drg Dava Fathiyatuzzakiyah
+            <T id="about.title" fallback="drg Dava Fathiyatuzzakiyah" />
           </h1>
-          <p className="mt-1.5 text-sm font-medium text-ink-soft">Dokter Gigi Umum</p>
+          <p className="mt-1.5 text-sm font-medium text-ink-soft"><T id="about.role" fallback="Dokter Gigi Umum" /></p>
 
           <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-ink-soft">
             <p>
-              Saya percaya pengalaman ke dokter gigi seharusnya tidak bikin tegang. Praktik ini
-              saya bangun dengan prinsip sederhana: jelaskan dulu, baru mulai — supaya setiap
-              pasien tahu apa yang terjadi di mulutnya dan kenapa perawatan itu perlu.
+              <T id="about.p1" fallback="Saya percaya pengalaman ke dokter gigi seharusnya tidak bikin tegang. Praktik ini saya bangun dengan prinsip sederhana: jelaskan dulu, baru mulai — supaya setiap pasien tahu apa yang terjadi di mulutnya dan kenapa perawatan itu perlu." />
             </p>
             <p>
-              Setiap perawatan dimulai dari pemeriksaan menyeluruh, lalu rencana perawatan yang
-              diprioritaskan sesuai kondisi dan anggaran Anda. Tidak ada tindakan yang disarankan
-              hanya karena &ldquo;sekalian aja&rdquo;.
+              <T id="about.p2" fallback="Setiap perawatan dimulai dari pemeriksaan menyeluruh, lalu rencana perawatan yang diprioritaskan sesuai kondisi dan kebutuhan Anda. Setiap pilihan dijelaskan sebelum perawatan dilakukan." />
             </p>
             <p>
               {/* TODO: lengkapi dengan data faktual drg Dava — pendidikan, pengalaman praktik, sertifikasi. */}
-              Untuk profil pendidikan dan pengalaman lengkap, segera diperbarui di halaman ini.
+              <T id="about.p3" fallback="Untuk profil pendidikan dan pengalaman lengkap, segera diperbarui di halaman ini." />
             </p>
           </div>
 
-          <h2 className="mt-10 text-xl font-bold text-ink">Fokus perawatan</h2>
+          <h2 className="mt-10 text-xl font-bold text-ink"><T id="about.focus" fallback="Fokus perawatan" /></h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {focuses.map((f) => (
+            {focuses.map((f, index) => (
               <li key={f} className="flex items-start gap-3 rounded-2xl border border-ink/8 bg-white p-4 text-sm text-ink shadow-card">
                 <CheckIcon width={18} height={18} className="mt-0.5 shrink-0 text-brand-600" />
-                {f}
+                <T id={`about.focus.${index + 1}`} fallback={f} />
               </li>
             ))}
           </ul>
 
           <figure className="mt-10 rounded-3xl border border-brand-200/60 bg-brand-50/60 p-7">
             <blockquote className="text-lg font-medium leading-relaxed text-brand-900">
-              &ldquo;Gigi yang sehat nggak harus mahal — yang penting perawatannya tepat dan
-              konsisten.&rdquo;
+              &ldquo;<T id="site.tagline" fallback={site.tagline} />.&rdquo;
             </blockquote>
-            <figcaption className="mt-3 text-sm text-brand-700">— drg Dava</figcaption>
+            <figcaption className="mt-3 text-sm text-brand-700"><T id="about.quoteBy" fallback="— drg Dava" /></figcaption>
           </figure>
 
-          <a
-            href={waLink(waBookingMessage)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <LocationWhatsAppLink
             className="mt-10 inline-flex rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lift transition hover:bg-brand-700"
           >
-            Buat Janji Temu dengan drg Dava
-          </a>
+            <T id="about.book" fallback="Buat Janji Temu dengan drg Dava" />
+          </LocationWhatsAppLink>
         </div>
       </div>
     </div>

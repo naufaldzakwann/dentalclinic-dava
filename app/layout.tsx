@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { site } from "@/lib/site";
+import { clinicLocations, site } from "@/lib/site";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -12,18 +12,18 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.fullName} — Senyum sehat tanpa rasa cemas`,
+    default: `${site.fullName} — ${site.tagline}`,
     template: `%s · ${site.name}`,
   },
   description:
-    "Praktik kedokteran gigi drg Dava Fathiyatuzzakiyah — scaling, tambal gigi, perawatan saluran akar, behel, pemutihan gigi, dan perawatan gigi anak dengan penjelasan yang jelas dan biaya transparan.",
+    "Praktik kedokteran gigi drg Dava Fathiyatuzzakiyah — scaling, tambal gigi, perawatan saluran akar, behel, pemutihan gigi, dan perawatan gigi anak dengan penjelasan yang jelas dan nyaman.",
   openGraph: {
     type: "website",
     locale: "id_ID",
     siteName: site.fullName,
-    title: `${site.fullName} — Praktik Kedokteran Gigi`,
+    title: `${site.fullName} — ${site.tagline}`,
     description:
-      "Perawatan gigi yang telaten, jujur soal biaya, dan nyaman untuk semua usia. Booking janji temu lewat WhatsApp.",
+      "Perawatan gigi yang telaten dan nyaman untuk semua usia. Booking janji temu lewat WhatsApp.",
   },
 };
 
@@ -32,13 +32,14 @@ const clinicJsonLd = {
   "@type": "Dentist",
   name: site.fullName,
   alternateName: site.name,
-  description: "Praktik kedokteran gigi dengan perawatan yang telaten dan biaya transparan.",
+  description: "Praktik kedokteran gigi dengan perawatan yang telaten dan nyaman.",
   telephone: site.phoneDisplay,
-  address: {
+  address: clinicLocations.map((location) => ({
     "@type": "PostalAddress",
-    streetAddress: site.address,
+    addressLocality: location.city,
+    addressRegion: location.region,
     addressCountry: "ID",
-  },
+  })),
   openingHoursSpecification: [
     {
       "@type": "OpeningHoursSpecification",
@@ -61,11 +62,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
       <body className={`${jakarta.variable} antialiased`}>
-        <a href="#konten-utama" className="skip-link">
-          Lewati ke konten utama
-        </a>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('dava:theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t;var l=localStorage.getItem('dava:language');if(l==='id'||l==='en')document.documentElement.lang=l}catch{}`,
+          }}
+        />
         {children}
         <script
           type="application/ld+json"

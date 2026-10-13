@@ -73,6 +73,12 @@ export const SunIcon = (p: P) => (
   </svg>
 );
 
+export const MoonIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M20.1 15.2A8.5 8.5 0 0 1 8.8 3.9 8.6 8.6 0 1 0 20.1 15.2z" />
+  </svg>
+);
+
 export const ClockIcon = (p: P) => (
   <svg {...base} {...p}>
     <circle cx="12" cy="12" r="8.5" />

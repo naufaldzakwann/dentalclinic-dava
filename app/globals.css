@@ -1,36 +1,60 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand: teal-emerald segar — hidup tapi tetap klinis */
-  --color-brand-50: #eafbf5;
-  --color-brand-100: #d0f6ea;
-  --color-brand-200: #a5edda;
-  --color-brand-300: #6ddec3;
-  --color-brand-400: #38c9a8;
-  --color-brand-500: #14b392;
-  --color-brand-600: #0a927a;
-  --color-brand-700: #0a7564;
-  --color-brand-800: #0b5c51;
-  --color-brand-900: #0b4a43;
+  /* Violet utama dengan permukaan lavender lembut dan kontras yang jelas. */
+  --color-brand-50: #f5f1ff;
+  --color-brand-100: #ebe2ff;
+  --color-brand-200: #d8c7ff;
+  --color-brand-300: #b99aff;
+  --color-brand-400: #9871f2;
+  --color-brand-500: #7b4add;
+  --color-brand-600: #6936c5;
+  --color-brand-700: #54299f;
+  --color-brand-800: #42217a;
+  --color-brand-900: #301957;
 
-  /* Aksen: amber keemasan untuk sorotan, bintang, dan CTA gelap */
-  --color-accent-100: #fdeecd;
-  --color-accent-200: #fbdd9d;
-  --color-accent-300: #f8c96b;
-  --color-accent-400: #f2b13f;
-  --color-accent-500: #e7951d;
-  --color-accent-600: #c67514;
+  --color-accent-100: #f7efff;
+  --color-accent-200: #eedfff;
+  --color-accent-300: #d9bdff;
+  --color-accent-400: #bd91f7;
+  --color-accent-500: #9a68df;
+  --color-accent-600: #7d4cbd;
 
-  /* Netral hangat: ivory krem + paper mint agar dua-nada */
-  --color-cream: #fbf8f0;
-  --color-paper: #eef6f1;
-  --color-ink: #0a1f2a;
-  --color-ink-soft: #48616c;
+  --color-cream: #fbf9ff;
+  --color-paper: #f3effa;
+  --color-ink: #271b3b;
+  --color-ink-soft: #655b76;
 
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-card: 0 1px 2px rgb(10 31 42 / 0.05), 0 18px 44px -18px rgb(10 31 42 / 0.16);
-  --shadow-lift: 0 2px 6px rgb(10 31 42 / 0.06), 0 30px 60px -18px rgb(10 146 122 / 0.3);
+  --shadow-card: 0 1px 2px rgb(39 27 59 / 0.05), 0 18px 44px -18px rgb(74 41 128 / 0.16);
+  --shadow-lift: 0 2px 8px rgb(39 27 59 / 0.08), 0 28px 56px -18px rgb(105 54 197 / 0.3);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --color-brand-50: #241a35;
+  --color-brand-100: #302145;
+  --color-brand-200: #44305f;
+  --color-brand-300: #70529a;
+  --color-brand-400: #9270c2;
+  --color-brand-500: #a984e5;
+  --color-brand-600: #b99af0;
+  --color-brand-700: #cbb4f5;
+  --color-brand-800: #e1d5f8;
+  --color-brand-900: #f0eafb;
+  --color-accent-100: #261c37;
+  --color-accent-200: #38264f;
+  --color-accent-300: #5b3b7e;
+  --color-accent-400: #9270bd;
+  --color-accent-500: #b08add;
+  --color-accent-600: #c2a5e8;
+  --color-cream: #120e19;
+  --color-paper: #1b1525;
+  --color-ink: #f4effa;
+  --color-ink-soft: #c0b5cf;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.2), 0 18px 44px -18px rgb(0 0 0 / 0.42);
+  --shadow-lift: 0 2px 8px rgb(0 0 0 / 0.24), 0 28px 56px -18px rgb(68 48 95 / 0.45);
 }
 
 html {
@@ -39,11 +63,54 @@ html {
 
 body {
   background:
-    radial-gradient(60% 40% at 85% -5%, rgb(56 201 168 / 0.1), transparent 70%),
-    radial-gradient(50% 35% at -10% 20%, rgb(248 201 107 / 0.08), transparent 70%),
+    radial-gradient(60% 40% at 85% -5%, rgb(185 154 255 / 0.12), transparent 70%),
+    radial-gradient(50% 35% at -10% 20%, rgb(217 189 255 / 0.1), transparent 70%),
     var(--color-cream);
   color: var(--color-ink);
   text-wrap: pretty;
+}
+
+html[data-theme="dark"] .bg-white {
+  background-color: #211a2d !important;
+}
+
+html[data-theme="dark"] .bg-brand-600 {
+  background-color: #6238a0 !important;
+}
+
+html[data-theme="dark"] .bg-brand-700 {
+  background-color: #56308f !important;
+}
+
+html[data-theme="dark"] .bg-brand-800 {
+  background-color: #44266f !important;
+}
+
+html[data-theme="dark"] .bg-brand-900 {
+  background-color: #321d50 !important;
+}
+
+html[data-theme="dark"] [class~="bg-gradient-to-r"][class~="from-brand-600"][class~="to-brand-500"] {
+  background-image: linear-gradient(90deg, #5c3298, #7347ad) !important;
+}
+
+html[data-theme="dark"] [class~="bg-gradient-to-r"][class~="from-accent-400"][class~="to-accent-500"] {
+  background-image: linear-gradient(90deg, #643e9f, #7851ae) !important;
+}
+
+html[data-theme="dark"] [class~="bg-gradient-to-br"][class~="from-brand-800"][class~="via-brand-600"][class~="to-brand-400"] {
+  background-image: linear-gradient(to bottom right, #39245a, #53318c, #6940a3) !important;
+}
+
+html[data-theme="dark"] [class~="bg-white/75"],
+html[data-theme="dark"] [class~="bg-white/80"],
+html[data-theme="dark"] [class~="bg-white/85"],
+html[data-theme="dark"] [class~="bg-white/90"] {
+  background-color: rgb(33 26 45 / 0.88) !important;
+}
+
+html[data-theme="dark"] .bg-red-50 {
+  background-color: #351b2b !important;
 }
 
 ::selection {
@@ -56,14 +123,14 @@ h2 {
   text-wrap: balance;
 }
 
-/* Angka & harga: rapi saat kolom berdampingan */
+/* Angka: rapi saat kolom berdampingan */
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
 /* Fokus keyboard: selalu terlihat */
 :focus-visible {
-  outline: 2px solid var(--color-brand-600);
+  outline: 2px solid var(--color-brand-700);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -86,7 +153,7 @@ h2 {
   z-index: 100;
   transition: transform 0.2s ease;
   border-radius: 8px;
-  background: var(--color-brand-700);
+  background: var(--color-brand-800);
   color: #fff;
   padding: 8px 16px;
   font-size: 13px;
@@ -150,6 +217,187 @@ h2 {
   animation: glow-drift 9s ease-in-out infinite;
 }
 
+/* Gerak ambient dan interaksi global situs. */
+@keyframes content-arrive {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+    scale: 0.985;
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: blur(0);
+  }
+}
+
+.motion-ready:not(.motion-visible) {
+  opacity: 0;
+  translate: 0 22px;
+  scale: 0.985;
+  filter: blur(2px);
+}
+
+.motion-ready.motion-visible {
+  animation: content-arrive 760ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  animation-delay: min(calc(var(--motion-index, 0) * 58ms), 290ms);
+}
+
+.site-header {
+  animation: header-drop 720ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.nav-tooth {
+  animation: badge-arrive 820ms cubic-bezier(0.2, 1.3, 0.4, 1) 120ms both;
+  transition: transform 260ms ease, box-shadow 260ms ease;
+}
+
+.site-header a:hover .nav-tooth {
+  transform: rotate(-8deg) scale(1.08);
+  box-shadow: 0 10px 25px rgb(84 41 159 / 0.28);
+}
+
+.mobile-menu {
+  transform-origin: top;
+  animation: menu-open 300ms cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+
+.ambient-orb {
+  pointer-events: none;
+  animation: orb-drift 13s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.ambient-orb-b {
+  animation-delay: -6.5s;
+  animation-duration: 16s;
+}
+
+#konten-utama a,
+#konten-utama button {
+  transition-property: transform, color, background-color, border-color, box-shadow, filter;
+  transition-duration: 240ms;
+  transition-timing-function: cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+#konten-utama a:hover:not([aria-current="page"]),
+#konten-utama button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+#konten-utama a:active,
+#konten-utama button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+#konten-utama article,
+#konten-utama figure,
+#konten-utama details {
+  transition: transform 280ms cubic-bezier(0.2, 0.75, 0.25, 1), box-shadow 280ms ease;
+}
+
+#konten-utama article:hover,
+#konten-utama figure:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+
+#konten-utama details[open] > p {
+  animation: answer-open 360ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+#konten-utama input,
+#konten-utama select,
+#konten-utama textarea {
+  transition: border-color 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+}
+
+#konten-utama input:focus,
+#konten-utama select:focus,
+#konten-utama textarea:focus {
+  box-shadow: 0 0 0 4px rgb(123 74 221 / 0.12);
+}
+
+.whatsapp-fab {
+  isolation: isolate;
+  animation: fab-arrive 800ms cubic-bezier(0.2, 1.3, 0.4, 1) 700ms both, fab-float 4s ease-in-out 1.5s infinite;
+}
+
+.whatsapp-fab::before {
+  position: absolute;
+  z-index: -1;
+  border: 1px solid rgb(37 211 102 / 0.45);
+  border-radius: inherit;
+  content: "";
+  inset: -4px;
+  animation: fab-pulse 2.4s ease-out 1.8s infinite;
+}
+
+@keyframes header-drop {
+  from { opacity: 0; transform: translateY(-18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes badge-arrive {
+  0% { opacity: 0; transform: rotate(-24deg) scale(0.5); }
+  70% { opacity: 1; transform: rotate(7deg) scale(1.12); }
+  100% { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+@keyframes menu-open {
+  from { opacity: 0; transform: translateY(-10px) scaleY(0.94); }
+  to { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+@keyframes orb-drift {
+  from { transform: translate3d(-2%, 1%, 0) scale(0.96); }
+  to { transform: translate3d(3%, -4%, 0) scale(1.08); }
+}
+
+@keyframes answer-open {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fab-arrive {
+  from { opacity: 0; transform: translateY(20px) scale(0.65); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fab-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -4px; }
+}
+
+@keyframes fab-pulse {
+  0% { opacity: 0.65; transform: scale(0.85); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+.hero-wash {
+  background:
+    radial-gradient(ellipse 50% 60% at 82% 46%, rgb(229 216 255 / 0.62), transparent 72%),
+    linear-gradient(115deg, #fbf9ff 0%, #fbf9ff 43%, #f6f1ff 100%);
+}
+
+html[data-theme="dark"] .hero-wash {
+  background:
+    radial-gradient(ellipse 50% 60% at 82% 46%, rgb(105 66 148 / 0.34), transparent 72%),
+    linear-gradient(115deg, #120e19 0%, #120e19 43%, #1d142a 100%);
+}
+
+.tooth-stage {
+  background:
+    radial-gradient(ellipse at 52% 46%, rgb(246 239 255 / 0.9) 0%, rgb(231 218 255 / 0.74) 38%, rgb(220 202 250 / 0.56) 72%, rgb(250 247 255 / 0.1) 100%);
+}
+
+html[data-theme="dark"] .tooth-stage {
+  background:
+    radial-gradient(ellipse at 52% 46%, rgb(61 39 84 / 0.9) 0%, rgb(42 28 61 / 0.82) 38%, rgb(30 20 44 / 0.78) 72%, rgb(18 14 25 / 0.3) 100%);
+}
+
 /* Panel info gigi: muncul dengan pop spring */
 @keyframes panel-in {
   from {
@@ -190,7 +438,17 @@ h2 {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .motion-ready.motion-visible {
+    animation-delay: 0ms !important;
+  }
+  .motion-ready:not(.motion-visible) {
+    opacity: 1;
+    translate: none;
+    scale: none;
+    filter: none;
   }
 }

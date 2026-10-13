@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
 import { ToothIcon } from "./icons";
+import { T } from "@/components/SitePreferences";
+import { clinicLocations } from "@/lib/site";
 
 export default function Footer() {
   return (
@@ -17,40 +19,42 @@ export default function Footer() {
             </span>
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed">
-            Perawatan gigi yang telaten, jujur soal biaya, dan nyaman untuk semua usia.
+            <T id="site.tagline" fallback={site.tagline} />.
           </p>
         </div>
 
         <nav aria-label="Tautan footer">
-          <h2 className="mb-4 text-sm font-semibold text-white">Tautan</h2>
+          <h2 className="mb-4 text-sm font-semibold text-white"><T id="footer.links" fallback="Tautan" /></h2>
           <ul className="space-y-2.5 text-sm">
-            <li><Link className="transition hover:text-white" href="/">Beranda</Link></li>
-            <li><Link className="transition hover:text-white" href="/layanan">Layanan &amp; Harga</Link></li>
-            <li><Link className="transition hover:text-white" href="/tentang">Tentang drg Dava</Link></li>
-            <li><Link className="transition hover:text-white" href="/kontak">Kontak</Link></li>
-            <li><Link className="transition hover:text-white" href="/galeri">Galeri</Link></li>
-            <li><Link className="transition hover:text-white" href="/booking">Booking Online</Link></li>
-            <li><Link className="transition hover:text-white" href="/kebijakan-privasi">Kebijakan Privasi</Link></li>
+            <li><Link className="transition hover:text-white" href="/"><T id="nav.home" fallback="Beranda" /></Link></li>
+            <li><Link className="transition hover:text-white" href="/layanan"><T id="nav.services" fallback="Layanan Perawatan" /></Link></li>
+            <li><Link className="transition hover:text-white" href="/tentang"><T id="nav.about" fallback="Tentang drg Dava" /></Link></li>
+            <li><Link className="transition hover:text-white" href="/kontak"><T id="nav.contact" fallback="Kontak" /></Link></li>
+            <li><Link className="transition hover:text-white" href="/galeri"><T id="nav.gallery" fallback="Galeri" /></Link></li>
+            <li><Link className="transition hover:text-white" href="/booking"><T id="nav.bookingOnline" fallback="Booking Online" /></Link></li>
+            <li><Link className="transition hover:text-white" href="/kebijakan-privasi"><T id="privacy.title" fallback="Kebijakan Privasi" /></Link></li>
           </ul>
         </nav>
 
         <div>
-          <h2 className="mb-4 text-sm font-semibold text-white">Jam Praktik</h2>
+          <h2 className="mb-4 text-sm font-semibold text-white"><T id="footer.hours" fallback="Jam Praktik" /></h2>
           <ul className="space-y-2.5 text-sm">
-            <li className="flex justify-between gap-4"><span>Senin – Jumat</span><span className="text-white">09.00 – 17.00</span></li>
-            <li className="flex justify-between gap-4"><span>Sabtu</span><span className="text-white">09.00 – 14.00</span></li>
-            <li className="flex justify-between gap-4"><span>Minggu</span><span className="text-white/50">Tutup</span></li>
+            <li className="flex justify-between gap-4"><span><T id="footer.weekdays" fallback="Senin – Jumat" /></span><span className="text-white">09.00 – 17.00</span></li>
+            <li className="flex justify-between gap-4"><span><T id="footer.saturday" fallback="Sabtu" /></span><span className="text-white">09.00 – 14.00</span></li>
+            <li className="flex justify-between gap-4"><span><T id="footer.sunday" fallback="Minggu" /></span><span className="text-white/50"><T id="footer.closed" fallback="Tutup" /></span></li>
           </ul>
         </div>
 
         <div>
-          <h2 className="mb-4 text-sm font-semibold text-white">Hubungi Kami</h2>
+          <h2 className="mb-4 text-sm font-semibold text-white"><T id="footer.contact" fallback="Hubungi Kami" /></h2>
           <ul className="space-y-2.5 text-sm">
             <li>{site.phoneDisplay}</li>
-            <li className="break-words">{site.address}</li>
+            {clinicLocations.map((location) => (
+              <li key={location.id} className="text-white/55">{location.city}, {location.region}</li>
+            ))}
             <li>
               <a className="transition hover:text-white" href={site.instagram} target="_blank" rel="noopener noreferrer">
-                Instagram @drgdava
+                <T id="footer.instagram" fallback="Instagram @drgdava" />
               </a>
             </li>
           </ul>
@@ -59,9 +63,9 @@ export default function Footer() {
 
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-5 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 {site.fullName}. Seluruh hak cipta dilindungi.</p>
+          <p>© 2026 {site.fullName}. <T id="footer.rights" fallback="Seluruh hak cipta dilindungi." /></p>
           <p>
-            Model 3D gigi berdasarkan &ldquo;Human mouth detailed&rdquo; oleh Mince, lisensi{" "}
+            <T id="footer.license" fallback="Model 3D gigi berdasarkan “Human mouth detailed” oleh Mince, lisensi" />{" "}
             <a
               className="underline decoration-white/30 underline-offset-2 hover:text-white/70"
               href="https://commons.wikimedia.org/wiki/File:3D_model_of_the_human_mouth.stl"
@@ -69,8 +73,7 @@ export default function Footer() {
               rel="noopener noreferrer"
             >
               CC BY 4.0
-            </a>{" "}
-            — dipisah & disusun ulang per gigi.
+            </a>{" "}<T id="footer.licenseEnd" fallback="— dipisah & disusun ulang per gigi." />
           </p>
         </div>
       </div>

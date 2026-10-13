@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { parseDateParam, getAvailableSlots } from "./availability";
 import { prisma } from "./db";
+import { isClinicLocationId, type ClinicLocationId } from "./site";
 
 export const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled", "no_show"] as const;
 export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 
 export const bookingInputSchema = z.object({
+  clinicLocation: z.string().refine(isClinicLocationId, "Lokasi klinik wajib dipilih").transform((value) => value as ClinicLocationId),
   serviceSlug: z.string().min(1).max(64),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   slotTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
@@ -34,11 +36,11 @@ function bookingCode(date: Date, seq: number): string {
 }
 
 /** Kunci slot aktif — mencegah slot kembar di level DB. */
-export function slotKeyFor(dentistId: string | null, date: Date, slotTime: string): string {
+export function slotKeyFor(clinicLocation: ClinicLocationId, dentistId: string | null, date: Date, slotTime: string): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  return `${dentistId ?? "-"}|${y}${m}${d}|${slotTime}`;
+  return `${clinicLocation}|${dentistId ?? "-"}|${y}${m}${d}|${slotTime}`;
 }
 
 /**
@@ -53,13 +55,13 @@ export async function createBooking(input: BookingInput): Promise<CreateBookingR
   const service = await prisma.service.findUnique({ where: { slug: input.serviceSlug } });
   if (!service || !service.isActive) return { ok: false, error: "invalid" };
 
-  const availability = await getAvailableSlots(date, input.serviceSlug);
+  const availability = await getAvailableSlots(date, input.serviceSlug, input.clinicLocation);
   if (!availability.ok || !availability.slots.includes(input.slotTime)) {
     return { ok: false, error: "unavailable" };
   }
 
   const dentist = await prisma.dentist.findFirst();
-  const key = slotKeyFor(dentist?.id ?? null, date, input.slotTime);
+  const key = slotKeyFor(input.clinicLocation, dentist?.id ?? null, date, input.slotTime);
   const count = await prisma.booking.count({ where: { date } });
 
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -68,6 +70,7 @@ export async function createBooking(input: BookingInput): Promise<CreateBookingR
       await prisma.booking.create({
         data: {
           code,
+          clinicLocation: input.clinicLocation,
           name: input.name,
           phone: input.phone,
           email: input.email || null,

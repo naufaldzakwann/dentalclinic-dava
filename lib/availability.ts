@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import type { ClinicLocationId } from "./site";
 
 export const SLOT_MINUTES = 30;
 export const LEAD_MINUTES = 60; // jeda minimum dari sekarang untuk booking hari ini
@@ -38,7 +39,11 @@ const formatMinutes = (min: number): string =>
  * Aturan: jam praktik hari itu − break − tanggal libur − slot terisi (interval durasi layanan)
  * − waktu yang sudah lewat (hanya untuk hari ini, dengan jeda LEAD_MINUTES).
  */
-export async function getAvailableSlots(date: Date, serviceSlug: string): Promise<AvailabilityResult> {
+export async function getAvailableSlots(
+  date: Date,
+  serviceSlug: string,
+  clinicLocation: ClinicLocationId,
+): Promise<AvailabilityResult> {
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   if (date < startOfToday) return { ok: false, reason: "past" };
@@ -54,7 +59,7 @@ export async function getAvailableSlots(date: Date, serviceSlug: string): Promis
   if (!open) return { ok: false, reason: "closed" };
 
   const taken = await prisma.booking.findMany({
-    where: { date, status: { not: "cancelled" } },
+    where: { date, clinicLocation, status: { not: "cancelled" } },
     select: { slotTime: true, service: { select: { duration: true } } },
   });
   const occupied = taken.map((b) => {

@@ -1,5 +1,6 @@
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getClinicLocation } from "@/lib/site";
 
 function csvCell(value: string | number | null): string {
   const s = String(value ?? "");
@@ -15,10 +16,11 @@ export async function GET(): Promise<Response> {
     include: { service: true, dentist: true },
   });
 
-  const header = ["kode", "tanggal", "jam", "nama", "telepon", "email", "layanan", "status", "catatan", "dibuat"];
+  const header = ["kode", "lokasi", "tanggal", "jam", "nama", "telepon", "email", "layanan", "status", "catatan", "dibuat"];
   const rows = bookings.map((b) =>
     [
       b.code,
+      getClinicLocation(b.clinicLocation)?.city ?? b.clinicLocation,
       b.date.toISOString().slice(0, 10),
       b.slotTime,
       b.name,

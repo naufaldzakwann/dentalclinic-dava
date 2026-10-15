@@ -1,7 +1,6 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import WhatsAppFab from "@/components/WhatsAppFab";
-import MotionDirector from "@/components/MotionDirector";
 import { SitePreferencesProvider } from "@/components/SitePreferences";
 import { T } from "@/components/SitePreferences";
 
@@ -18,7 +17,6 @@ export default function PublicLayout({
         </a>
         <Nav />
         <main id="konten-utama">{children}</main>
-        <MotionDirector />
         <Footer />
         <WhatsAppFab />
       </>

@@ -2,7 +2,7 @@
 // beberapa booking contoh untuk demo dashboard. Idempoten — aman dijalankan berulang.
 // Jalankan: npm run db:seed
 import prismaPkg from "@prisma/client";
-import { services } from "../lib/site.ts";
+import { syncClinicData } from "../scripts/sync-clinic.mjs";
 
 const { PrismaClient } = prismaPkg;
 
@@ -24,15 +24,7 @@ function dateParam(date) {
 }
 
 async function main() {
-  const dentist = await prisma.dentist.upsert({
-    where: { id: "drg-dava" },
-    update: {},
-    create: {
-      id: "drg-dava",
-      name: "drg Dava Fathiyatuzzakiyah",
-      bio: "Dokter Gigi Umum — fokus pada perawatan tanpa rasa cemas.",
-    },
-  });
+  const { dentist } = await syncClinicData(prisma);
 
   // Jam praktik: Senin–Jumat 09.00–17.00, Sabtu 09.00–14.00, Minggu tutup.
   for (const dayOfWeek of [1, 2, 3, 4, 5]) {
@@ -47,27 +39,6 @@ async function main() {
     update: {},
     create: { dentistId: dentist.id, dayOfWeek: 6, openTime: "09:00", closeTime: "14:00" },
   });
-
-  for (const s of services) {
-    await prisma.service.upsert({
-      where: { slug: s.slug },
-      update: {
-        name: s.name,
-        short: s.short,
-        description: s.desc,
-        priceFrom: s.priceFrom,
-        duration: s.minutes,
-      },
-      create: {
-        slug: s.slug,
-        name: s.name,
-        short: s.short,
-        description: s.desc,
-        priceFrom: s.priceFrom,
-        duration: s.minutes,
-      },
-    });
-  }
 
   // Booking contoh pada hari buka berikutnya, supaya dashboard tidak kosong.
   const now = new Date();

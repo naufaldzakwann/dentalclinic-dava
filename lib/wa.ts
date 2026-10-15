@@ -5,4 +5,4 @@ export function waLink(message: string): string {
 }
 
 export const waBookingMessage =
-  "Halo, saya ingin membuat janji temu di praktik drg Dava Fathiyatuzzakiyah. Layanan yang saya minati: ";
+  `Halo, saya ingin membuat janji konsultasi di praktik ${site.name}`;

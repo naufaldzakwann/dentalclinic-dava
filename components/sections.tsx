@@ -1,312 +1,79 @@
 import Link from "next/link";
-import { services, featuredSlugs } from "@/lib/site";
-import { ArrowRightIcon, ToothIcon, StarIcon, SmileIcon } from "./icons";
-import LocationWhatsAppLink from "@/components/LocationWhatsAppLink";
+import { services, site } from "@/lib/site";
+import { ArrowRightIcon, CheckIcon, ChatIcon, ClockIcon, MapPinIcon, ToothIcon } from "./icons";
 import { serviceIcons } from "./service-icons";
-import { T } from "@/components/SitePreferences";
+import { T } from "./SitePreferences";
+import Copy from "./LocalizedCopy";
+import LocationWhatsAppLink from "./LocationWhatsAppLink";
+import ClinicSelector from "./ClinicSelector";
 
-function Kicker({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-brand-700">
-      <span aria-hidden className="h-px w-8 bg-brand-400" />
-      {children}
-      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent-400" />
-    </p>
-  );
+export function WelcomeSection() {
+  return <section id="welcome" className="page-shell welcome-section">
+    <div className="welcome-head"><p className="eyebrow"><span className="status-dot" /><Copy id="SPESIALIS KONSERVASI GIGI" en="CONSERVATIVE DENTISTRY & ENDODONTICS" /></p><span className="section-counter">DAVA / DENTAL CARE</span></div>
+    <div className="welcome-grid"><div><h1><Copy id="Senyum sehat." en="A healthy smile." /><br /><em><Copy id="Lebih percaya diri." en="A more confident you." /></em></h1><p className="welcome-doctor">{site.name}</p></div><div className="welcome-description"><p className="body-copy"><Copy id="Perawatan gigi spesialistik yang dimulai dengan mendengarkan. Kami membantu merawat dan mempertahankan gigi alami Anda melalui rencana perawatan yang jelas dan personal." en="Specialist dental care that starts by listening. We help care for and preserve your natural teeth with a clear, personal treatment plan." /></p><div className="welcome-actions"><Link href="/booking?service=konsultasi" className="btn-primary"><Copy id="Jadwalkan konsultasi" en="Book a consultation" /><ArrowRightIcon width={17} height={17} aria-hidden /></Link><Link href="/layanan" className="text-link"><Copy id="Jelajahi perawatan" en="Explore treatments" /><ArrowRightIcon width={16} height={16} aria-hidden /></Link></div><p className="welcome-location">PEKANBARU & TALUK KUANTAN · RIAU, INDONESIA</p></div></div>
+  </section>;
 }
 
-/* ————— Beranda: layanan unggulan ————— */
+export function CareStrip() {
+  return <div className="care-strip"><div className="page-shell care-strip-grid">{[
+    ["Perhatian personal", "Personal attention"], ["Rencana yang jelas", "A clear care plan"], ["Booking online", "Online appointments"], ["Dua lokasi di Riau", "Two locations in Riau"],
+  ].map(([id, en], i) => <div key={en}><span className="care-strip-number">0{i + 1}</span><span><Copy id={id} en={en} /></span><CheckIcon width={15} height={15} aria-hidden /></div>)}</div></div>;
+}
+
 export function ServicesPreview() {
-  const featured = featuredSlugs
-    .map((slug) => services.find((s) => s.slug === slug))
-    .filter(Boolean) as typeof services;
-  const [first, ...rest] = featured;
-
-  return (
-    <section className="mx-auto max-w-6xl px-5 py-20 sm:py-28" id="layanan">
-      <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
-        <div className="max-w-lg">
-          <Kicker><T id="home.services.kicker" fallback="Layanan" /></Kicker>
-          <h2 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-            <T id="home.services.title" fallback="Perawatan lengkap untuk tiap kebutuhan" />
-          </h2>
-        </div>
-        <Link
-          href="/layanan"
-          className="group inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition hover:text-brand-800"
-        >
-          <T id="home.services.all" fallback="Lihat semua layanan" />
-          <ArrowRightIcon width={16} height={16} className="transition group-hover:translate-x-0.5" />
-        </Link>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* Kartu utama: lebih besar, menonjol */}
-        <a
-          href={`/layanan#${first.slug}`}
-          className="group relative flex flex-col overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-brand-800 via-brand-600 to-brand-400 p-8 shadow-lift transition hover:-translate-y-1 md:row-span-2"
-        >
-          <div aria-hidden className="glow-drift absolute -right-14 -top-14 h-44 w-44 rounded-full bg-accent-300/30 blur-2xl" />
-          <div aria-hidden className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-          <span className="mb-8 grid h-12 w-12 place-items-center rounded-2xl bg-white/15 text-white">
-            <ToothIcon width={24} height={24} />
-          </span>
-          <h3 className="mt-auto text-2xl font-bold text-white"><T id={`service.${first.slug}.name`} fallback={first.name} /></h3>
-          <p className="mt-2 max-w-[26ch] text-sm leading-relaxed text-brand-50/85"><T id={`service.${first.slug}.short`} fallback={first.short} /></p>
-          <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-brand-100">
-            <T id="home.services.detail" fallback="Detail perawatan" />
-            <ArrowRightIcon width={16} height={16} className="transition group-hover:translate-x-1" />
-          </span>
-        </a>
-
-        {rest.map((s) => {
-          const Icon = serviceIcons[s.slug] ?? ToothIcon;
-          return (
-            <a
-              key={s.slug}
-              href={`/layanan#${s.slug}`}
-              className="group flex flex-col rounded-[1.75rem] bg-white p-6 shadow-card transition hover:-translate-y-1 hover:shadow-lift"
-            >
-              <span className="mb-6 grid h-11 w-11 place-items-center rounded-2xl bg-brand-50 text-brand-700 transition group-hover:bg-brand-600 group-hover:text-white">
-                <Icon width={22} height={22} />
-              </span>
-              <h3 className="text-lg font-bold text-ink"><T id={`service.${s.slug}.name`} fallback={s.name} /></h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-soft"><T id={`service.${s.slug}.short`} fallback={s.short} /></p>
-              <span className="mt-auto inline-flex items-center gap-2 pt-5 text-sm font-semibold text-brand-700">
-                <T id="home.services.view" fallback="Lihat perawatan" />
-                <ArrowRightIcon width={15} height={15} className="transition group-hover:translate-x-0.5" />
-              </span>
-            </a>
-          );
-        })}
-      </div>
-    </section>
-  );
+  const selected = ["konsultasi", "perawatan-saluran-akar", "tambal-gigi", "bleaching"].map(slug => services.find(s => s.slug === slug)!);
+  return <section id="perawatan" className="section-space page-shell">
+    <div className="section-topline"><p className="eyebrow"><Copy id="DIDESAIN UNTUK SENYUM ANDA" en="DESIGNED AROUND YOUR SMILE" /></p><span className="section-counter">01 / CARE</span></div>
+    <div className="section-intro-row"><h2 className="section-heading"><Copy id="Kebutuhan berbeda." en="Different needs." /><br /><em><Copy id="Perhatian yang sama." en="The same thoughtful care." /></em></h2><div><p className="body-copy"><Copy id="Dari kontrol rutin hingga perawatan lanjutan, temukan langkah yang tepat untuk menjaga senyum Anda." en="Routine visits or a more detailed treatment plan. Find the right next step for your smile." /></p><Link href="/layanan" className="text-link mt-6"><Copy id="Lihat semua perawatan" en="View all treatments" /><ArrowRightIcon width={17} height={17} aria-hidden /></Link></div></div>
+    <div className="treatment-grid">{selected.map((service, i) => {
+      const Icon = serviceIcons[service.slug] ?? ToothIcon;
+      return <Link href={`/layanan#${service.slug}`} key={service.slug} className={`treatment-card treatment-tone-${i}`}>
+        <div className="treatment-art" aria-hidden><span className="treatment-art-circle" /><Icon width={98} height={98} strokeWidth={0.8} /><span className="treatment-art-number">0{i + 1}</span><span className="treatment-art-tag">DAVA / DENTAL CARE</span></div>
+        <div className="treatment-card-copy"><p className="treatment-category"><Copy id={i === 0 ? "KONSULTASI PERSONAL" : i === 1 ? "KONSERVASI GIGI" : i === 2 ? "RESTORASI GIGI" : "ESTETIKA GIGI"} en={i === 0 ? "PERSONAL CONSULTATION" : i === 1 ? "ENDODONTIC CARE" : i === 2 ? "RESTORATIVE CARE" : "COSMETIC CARE"} /></p><h3><T id={`service.${service.slug}.name`} fallback={service.name} /><ArrowRightIcon width={20} height={20} aria-hidden /></h3><p><T id={`service.${service.slug}.short`} fallback={service.short} /></p></div>
+      </Link>;
+    })}</div>
+    <p className="treatment-note"><Copy id="Belum tahu perawatan yang dibutuhkan? Kita mulai dari konsultasi." en="Not sure where to start? Let's begin with a consultation." /><Link href="/booking"><Copy id="Bicarakan dengan kami" en="Talk to us" /><ArrowRightIcon width={14} height={14} aria-hidden /></Link></p>
+  </section>;
 }
-
-/* ————— Beranda: keunggulan ————— */
-const whyUs = [
-  {
-    title: "Penjelasan sebelum tindakan",
-    text: "Kondisi gigi dan pilihan perawatan dijelaskan dengan tenang sebelum tindakan dimulai.",
-  },
-  {
-    title: "Sterilisasi standar klinik",
-    text: "Instrumen melalui sterilisasi bertahap dan terdokumentasi; sekali pakai untuk yang disposabel.",
-  },
-  {
-    title: "Rencana perawatan yang jelas",
-    text: "Setiap langkah disesuaikan dengan kondisi dan kebutuhan gigi Anda.",
-  },
-  {
-    title: "Ramah semua usia",
-    text: "Dari gigi susu hingga gigi tiruan — pendekatan dan tempo perawatan menyesuaikan siapa yang duduk di kursi.",
-  },
-] as const;
 
 export function WhyUs() {
-  return (
-    <section className="border-y border-ink/5 bg-paper py-20 sm:py-28">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          <Kicker><T id="home.why.kicker" fallback="Mengapa ke sini" /></Kicker>
-          <h2 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-            <T id="home.why.title" fallback="Nyaman itu bagian dari perawatan" />
-          </h2>
-          <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-ink-soft">
-            <T id="home.why.description" fallback="Empat hal yang saya pegang di setiap pasien — dari yang pertama kali ke dokter gigi sampai yang sudah rutin bertahun-tahun." />
-          </p>
-        </div>
-
-        <ol className="divide-y divide-ink/8 border-t border-ink/8">
-          {whyUs.map((w, i) => (
-            <li key={w.title} className="flex items-start gap-6 py-7">
-              <span className="tabular text-sm font-semibold text-brand-600">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h3 className="font-bold text-ink"><T id={`home.why.${i + 1}.title`} fallback={w.title} /></h3>
-                <p className="mt-1.5 max-w-[52ch] text-sm leading-relaxed text-ink-soft"><T id={`home.why.${i + 1}.text`} fallback={w.text} /></p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-  );
+  return <section className="philosophy-section"><div className="page-shell philosophy-grid">
+    <div className="philosophy-art"><span className="eyebrow">THE DAVA APPROACH</span><div className="philosophy-petal" aria-hidden /><div className="philosophy-petal petal-two" aria-hidden /><span className="philosophy-word">Care,<br />at <em>your</em><br />pace.</span><div className="philosophy-art-bottom"><ToothIcon width={30} height={30} aria-hidden /><span>PERSONAL CARE.<br />LASTING CONFIDENCE.</span></div></div>
+    <div className="philosophy-copy"><p className="eyebrow"><Copy id="LEBIH DARI SEBUAH PERAWATAN" en="MORE THAN A DENTAL VISIT" /></p><h2 className="section-heading"><Copy id="Nyaman sejak" en="Feel at ease," /><br /><em><Copy id="percakapan pertama." en="right from hello." /></em></h2><p className="body-copy"><Copy id="Kami percaya Anda berhak memahami setiap langkah perawatan. Karena itu, kami meluangkan waktu untuk mendengar, menjelaskan, dan menyusun rencana bersama Anda." en="You deserve to understand your care. We take time to listen, explain your options, and work through a plan together." /></p>
+      <div className="philosophy-values">{[
+        ["Dimulai dengan mendengar", "We start by listening", "Ceritakan keluhan dan harapan Anda, tanpa perlu merasa terburu-buru.", "Tell us what's on your mind, without feeling rushed."],
+        ["Pilihan yang Anda pahami", "Choices you understand", "Kenali kondisi gigi, pilihan tindakan, dan rencana sebelum perawatan dimulai.", "Understand your teeth, the treatment options, and the plan before we begin."],
+      ].map(([title, en, body, bodyEn], i) => <div key={en}><span>0{i + 1}</span><div><h3><Copy id={title} en={en} /></h3><p><Copy id={body} en={bodyEn} /></p></div></div>)}</div>
+      <Link className="text-link" href="/tentang"><Copy id="Kenali dokter Anda" en="Meet your specialist" /><ArrowRightIcon width={17} height={17} aria-hidden /></Link>
+    </div>
+  </div></section>;
 }
 
-/* ————— Beranda: testimoni ————— */
-export function Testimonials() {
-  const [featuredQuote, ...supporting] = [
-    {
-      name: "Bayu P.",
-      tag: "Perawatan saluran akar",
-      text: "Pernah takut ke dokter gigi bertahun-tahun. Di sini sabar banget, langkahnya dijelaskan satu per satu — sekarang malah rutin kontrol.",
-      key: "home.testimonials.featured",
-      tagKey: "home.testimonials.rootCanal",
-    },
-    {
-      name: "Sari W.",
-      tag: "Scaling",
-      text: "Penjelasannya detail banget sebelum mulai, jadi nggak cemas. Scaling-nya nggak sakit sama sekali, rutenya enak.",
-      key: "home.testimonials.scaling",
-      tagKey: "home.testimonials.scalingTag",
-    },
-    {
-      name: "Nadia & Ayra",
-      tag: "Gigi anak",
-      text: "Anak saya yang tadinya nangis di klinik lain, di sini malah betah. Tambal gigi susunya beres tanpa drama.",
-      key: "home.testimonials.children",
-      tagKey: "home.testimonials.childrenTag",
-    },
+export function PatientJourney() {
+  const steps = [
+    { title: "Pilih waktu Anda", en: "Make time for you", body: "Pilih klinik, perawatan, dan jadwal kunjungan melalui booking online.", bodyEn: "Choose your clinic, treatment, and appointment time online.", Icon: ClockIcon },
+    { title: "Mari bercerita", en: "Let's talk", body: "Sampaikan keluhan Anda. Dokter akan memeriksa dan menjelaskan pilihan yang sesuai.", bodyEn: "Share your concerns. Your dentist will examine your teeth and explain the options.", Icon: ChatIcon },
+    { title: "Rencana bersama", en: "Plan it together", body: "Pahami rencana dan estimasi biaya sebelum memutuskan perawatan.", bodyEn: "Understand the care plan and estimated cost before making a decision.", Icon: ToothIcon },
+    { title: "Rawat senyum Anda", en: "Keep your smile well", body: "Dapatkan arahan perawatan di rumah dan jadwal kontrol bila diperlukan.", bodyEn: "Get home-care guidance and a follow-up appointment when needed.", Icon: CheckIcon },
   ];
-
-  return (
-    <section className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
-      <Kicker><T id="home.testimonials.kicker" fallback="Kata pasien" /></Kicker>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <figure className="flex flex-col justify-between rounded-[1.75rem] bg-gradient-to-br from-ink to-brand-900 p-8 text-white shadow-lift sm:p-10">
-          <blockquote className="text-xl font-medium leading-relaxed text-white sm:text-2xl">
-            &ldquo;<T id={featuredQuote.key} fallback={featuredQuote.text} />&rdquo;
-          </blockquote>
-          <figcaption className="mt-8 flex items-center gap-4">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10 font-bold text-white">
-              B
-            </span>
-            <span>
-              <span className="block font-bold text-white">{featuredQuote.name}</span>
-              <span className="block text-sm text-white/60"><T id={featuredQuote.tagKey} fallback={featuredQuote.tag} /></span>
-            </span>
-          </figcaption>
-        </figure>
-
-        <div className="grid gap-4">
-          {supporting.map((t) => (
-            <figure key={t.name} className="rounded-[1.75rem] bg-white p-6 shadow-card">
-              <div className="flex gap-0.5 text-accent-500" aria-label="5/5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <StarIcon key={i} />
-                ))}
-              </div>
-              <blockquote className="mt-3 text-sm leading-relaxed text-ink">
-                &ldquo;<T id={t.key} fallback={t.text} />&rdquo;
-              </blockquote>
-              <figcaption className="mt-4 text-sm">
-                <span className="font-bold text-ink">{t.name}</span>
-                <span className="text-ink-soft"> · <T id={t.tagKey} fallback={t.tag} /></span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  return <section className="page-shell section-space journey-section"><div className="section-topline"><p className="eyebrow"><Copy id="KUNJUNGAN ANDA" en="YOUR VISIT, EXPLAINED" /></p><span className="section-counter">02 / YOUR JOURNEY</span></div><div className="section-intro-row"><h2 className="section-heading"><Copy id="Langkah kecil." en="Small steps." /><br /><em><Copy id="Senyum yang berarti." en="A smile that matters." /></em></h2><p className="body-copy"><Copy id="Pertama kali berkunjung? Begini kami menemani perjalanan perawatan Anda." en="Your first visit? Here's how we'll guide you through your care." /></p></div><ol className="journey-grid">{steps.map(({ title, en, body, bodyEn, Icon }, i) => <li key={title}><div className="journey-step-top"><span>0{i + 1}</span><Icon width={24} height={24} aria-hidden /></div><h3><Copy id={title} en={en} /></h3><p><Copy id={body} en={bodyEn} /></p></li>)}</ol></section>;
 }
 
-/* ————— Beranda: FAQ ————— */
+export function Locations() {
+  return <section className="locations-section"><div className="page-shell locations-grid"><div><p className="eyebrow"><Copy id="LEBIH DEKAT DENGAN ANDA" en="CLOSER TO YOU" /></p><h2 className="section-heading"><Copy id="Dua lokasi." en="Two locations." /><br /><em><Copy id="Satu perhatian." en="One caring approach." /></em></h2><p className="body-copy mt-5"><Copy id="Pilih lokasi yang paling nyaman bagi Anda. Pilihan klinik akan tersimpan untuk memudahkan booking kunjungan." en="Choose the location that works for you. We'll remember your choice when you book a visit." /></p><Link href="/kontak" className="text-link mt-6"><Copy id="Informasi kunjungan" en="Plan your visit" /><ArrowRightIcon width={17} height={17} aria-hidden /></Link></div><div className="location-picker-panel"><div className="flex items-center gap-3 mb-6"><MapPinIcon width={22} height={22} className="text-brand-600" aria-hidden /><span className="text-sm font-semibold"><Copy id="Temukan klinik Anda" en="Find your clinic" /></span><span className="ml-auto text-[10px] tracking-widest text-ink-soft">RIAU, ID</span></div><ClinicSelector variant="cards" /><div className="location-panel-bottom"><ClockIcon width={16} height={16} aria-hidden /><span><Copy id="Senin–Jumat 09.00–17.00 · Sabtu 09.00–14.00 WIB" en="Mon–Fri 09:00–17:00 · Sat 09:00–14:00 WIB" /></span></div></div></div></section>;
+}
+
 export function Faq() {
   const items = [
-    {
-      q: "Apakah harus membuat janji temu dulu?",
-      a: "Sangat disarankan. Dengan janji temu, waktu tunggu Anda minimal dan dokter sudah menyiapkan perawatan yang Anda butuhkan. Booking bisa lewat tombol WhatsApp di kanan bawah.",
-    },
-    {
-      q: "Apakah perawatan gigi di sini sakit?",
-      a: "Setiap tindakan dimulai dari pemeriksaan dan penjelasan. Jika perlu anestesi, kami berikan sebelum tindakan dimulai, dan dosisnya disesuaikan agar Anda tetap nyaman.",
-    },
-    {
-      q: "Bagaimana menentukan perawatan yang sesuai?",
-      a: "Dokter akan memeriksa kondisi gigi, menjelaskan pilihan yang tersedia, lalu menyusun rencana bersama Anda sebelum tindakan dimulai.",
-    },
-    {
-      q: "Anak saya 4 tahun, apakah bisa dirawat di sini?",
-      a: "Bisa. Perawatan gigi anak didesain ramah: pemeriksaan diperkenalkan pelan-pelan supaya anak nyaman dan tidak trauma.",
-    },
-    {
-      q: "Metode pembayaran apa saja yang diterima?",
-      a: "Tunai, transfer bank, dan QRIS. (Catatan: sesuaikan dengan kebijakan klinik.)",
-    },
+    ["Apakah saya perlu membuat janji terlebih dahulu?", "Should I book an appointment first?", "Kami menyarankan Anda membuat janji agar kunjungan lebih terencana. Pilih jadwal melalui booking online atau hubungi kami lewat WhatsApp.", "We recommend booking ahead so we can plan your visit. Choose a time online or contact us on WhatsApp."],
+    ["Bagaimana jika saya belum tahu perawatan yang dibutuhkan?", "What if I don't know which treatment I need?", "Mulai dengan menghubungi kami. Dokter akan memeriksa kondisi gigi dan menjelaskan pilihan yang sesuai saat konsultasi.", "Start by getting in touch. During your consultation, the dentist will examine your teeth and explain suitable options."],
+    ["Saya cemas ke dokter gigi. Apa yang bisa saya lakukan?", "I'm nervous about visiting. What can I do?", "Sampaikan kekhawatiran Anda saat membuat janji. Kami akan menjelaskan proses perawatan dan mendiskusikan cara agar Anda merasa lebih nyaman.", "Tell us about your concerns when you book. We'll explain the process and discuss how to help you feel more comfortable."],
+    ["Apakah tersedia perawatan untuk anak?", "Do you offer dental care for children?", "Ya, tersedia pemeriksaan dan perawatan gigi anak. Hubungi kami untuk mendiskusikan usia dan kebutuhan anak sebelum kunjungan.", "Yes, we offer children's dental check-ups and care. Contact us to discuss your child's age and needs before the visit."],
+    ["Bagaimana mengetahui biaya perawatan?", "How do I find out the cost of treatment?", "Biaya mengikuti kondisi gigi dan tindakan yang dibutuhkan. Konfirmasikan estimasi biaya dengan klinik sebelum menyetujui perawatan.", "The cost depends on your teeth and the treatment needed. Confirm your estimate with the clinic before agreeing to care."],
   ];
-
-  return (
-    <section className="border-y border-ink/5 bg-paper py-20 sm:py-28">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          <Kicker><T id="home.faq.kicker" fallback="Tanya jawab" /></Kicker>
-          <h2 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-            <T id="home.faq.title" fallback="Pertanyaan yang sering muncul" />
-          </h2>
-          <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-ink-soft">
-            <T id="home.faq.notFound" fallback="Belum menemukan jawabannya?" />{" "}
-            <LocationWhatsAppLink
-              purpose="question"
-              className="font-semibold text-brand-700 underline decoration-brand-300 underline-offset-4 hover:text-brand-800"
-            >
-              <T id="home.faq.ask" fallback="Tanya langsung via WhatsApp" />
-            </LocationWhatsAppLink>
-            .
-          </p>
-        </div>
-
-        <div className="divide-y divide-ink/8 border-y border-ink/8">
-          {items.map((f) => (
-            <details key={f.q} className="group py-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-ink [&::-webkit-details-marker]:hidden">
-                <T id={`home.faq.${items.indexOf(f) + 1}.q`} fallback={f.q} />
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white text-ink-soft ring-1 ring-ink/10 transition group-open:rotate-45 group-open:text-brand-700">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden>
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </span>
-              </summary>
-              <p className="mt-3 max-w-[56ch] text-sm leading-relaxed text-ink-soft"><T id={`home.faq.${items.indexOf(f) + 1}.a`} fallback={f.a} /></p>
-            </details>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  return <section className="page-shell section-space faq-grid"><div><p className="eyebrow"><Copy id="SEBELUM KUNJUNGAN" en="BEFORE YOUR VISIT" /></p><h2 className="section-heading"><Copy id="Mari buat" en="Let's make" /><br /><em><Copy id="semuanya jelas." en="things clear." /></em></h2><p className="body-copy mt-5"><Copy id="Masih ada yang ingin ditanyakan? Kami siap membantu Anda mempersiapkan kunjungan." en="Have another question? We're here to help you prepare for your visit." /></p><LocationWhatsAppLink purpose="question" className="text-link mt-6"><Copy id="Tanya kepada kami" en="Ask us a question" /><ArrowRightIcon width={17} height={17} aria-hidden /></LocationWhatsAppLink></div><div className="faq-list">{items.map(([q, en, a, aEn], i) => <details key={q}><summary><span className="faq-number">0{i + 1}</span><span><Copy id={q} en={en} /></span><span className="faq-plus" aria-hidden>+</span></summary><p><Copy id={a} en={aEn} /></p></details>)}</div></section>;
 }
 
-/* ————— Beranda: ajakan terakhir ————— */
 export function CtaBand() {
-  return (
-    <section className="mx-auto max-w-6xl px-5 pb-24 pt-4 sm:pb-28">
-      <div className="noise relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-ink via-[#302044] to-brand-900 px-7 py-14 text-left shadow-lift sm:px-14">
-        <div aria-hidden className="glow-drift absolute -right-20 -top-28 h-72 w-72 rounded-full bg-brand-400/25 blur-3xl" />
-        <div aria-hidden className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-accent-400/15 blur-3xl" />
-        <div className="relative">
-          <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-300">
-            <SmileIcon width={18} height={18} /> <T id="home.cta.kicker" fallback="Mulai dari konsultasi santai" />
-          </p>
-          <h2 className="mt-4 max-w-xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            <T id="home.cta.title" fallback="Ceritakan keluhan Anda, kami bantu urus sisanya" />
-          </h2>
-          <p className="mt-3 max-w-md text-[15px] leading-relaxed text-white/60">
-            <T id="home.cta.description" fallback="Buat janji temu dengan memilih klinik, layanan, dan waktu kunjungan, atau ceritakan keluhan Anda lewat WhatsApp — kami bantu menentukan langkah berikutnya." />
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/booking"
-              className="rounded-full bg-gradient-to-r from-accent-400 to-accent-500 px-6 py-3 text-sm font-bold text-ink shadow-card transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0"
-            >
-              <T id="nav.bookingOnline" fallback="Booking Online" />
-            </Link>
-            <LocationWhatsAppLink
-              className="rounded-full px-6 py-3 text-sm font-semibold text-white/80 transition hover:text-white"
-            >
-              <T id="home.cta.whatsapp" fallback="Lebih suka WhatsApp? Chat" /> →
-            </LocationWhatsAppLink>
-            <Link
-              href="/layanan"
-              className="rounded-full px-6 py-3 text-sm font-semibold text-white/80 transition hover:text-white"
-            >
-              <T id="home.cta.services" fallback="Lihat semua layanan" /> →
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+  return <section className="page-shell cta-section"><div className="cta-panel"><div className="cta-orbit" aria-hidden /><p className="eyebrow"><span className="status-dot" /><Copy id="SENYUM BERIKUTNYA DIMULAI DI SINI" en="YOUR NEXT SMILE STARTS HERE" /></p><h2><Copy id="Luangkan waktu" en="Make time" /><br /><em><Copy id="untuk senyum Anda." en="for your smile." /></em></h2><p><Copy id="Mari mulai dengan percakapan dan rencana yang tepat untuk Anda." en="Let's start with a conversation and a plan that feels right for you." /></p><div className="flex flex-wrap items-center gap-5 mt-8"><Link href="/booking" className="btn-light"><Copy id="Buat janji temu" en="Book an appointment" /><ArrowRightIcon width={18} height={18} aria-hidden /></Link><LocationWhatsAppLink className="text-link cta-chat"><Copy id="Hubungi via WhatsApp" en="Chat on WhatsApp" /><ArrowRightIcon width={16} height={16} aria-hidden /></LocationWhatsAppLink></div><span className="cta-brand" aria-hidden>d.</span></div></section>;
 }

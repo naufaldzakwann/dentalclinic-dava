@@ -2,8 +2,10 @@
 // sebelum go-live. Mengubah di sini otomatis ikut ke semua halaman & tombol WhatsApp.
 
 export const site = {
-  name: "drg Dava Fathiyatuzzakiyah",
-  fullName: "Praktik Kedokteran Gigi drg Dava Fathiyatuzzakiyah",
+  name: "drg. Dava Fathiyatuzzakiyah, Sp.KG.",
+  fullName: "Praktik Spesialis Konservasi Gigi drg. Dava Fathiyatuzzakiyah, Sp.KG.",
+  specialty: "Spesialis Konservasi Gigi",
+  specialtyEn: "Specialist in Conservative Dentistry & Endodontics",
   tagline: "Gigi yang sehat merupakan cerminan hidup sehat",
   // TODO: ganti nomor WhatsApp asli klinik (format internasional tanpa +/spasi)
   whatsapp: "6281234567890",
@@ -39,6 +41,14 @@ export type Service = {
 
 // Harga = harga mulai (placeholder) — TODO: sesuaikan dengan harga resmi klinik
 export const services: Service[] = [
+  {
+    slug: "konsultasi",
+    name: "Konsultasi Gigi",
+    short: "Pemeriksaan dan diskusi kebutuhan perawatan",
+    desc: "Diskusikan keluhan Anda dan lakukan pemeriksaan gigi bersama dokter. Pilihan serta prioritas perawatan dijelaskan sesuai kondisi dan kebutuhan Anda.",
+    priceFrom: null,
+    minutes: 30,
+  },
   {
     slug: "scaling",
     name: "Scaling & Polishing",
@@ -88,14 +98,6 @@ export const services: Service[] = [
     minutes: 75,
   },
   {
-    slug: "ortodonti",
-    name: "Behel / Ortodonti",
-    short: "Merapikan susunan gigi",
-    desc: "Perapihan gigi dengan behel kawat atau clear aligner, dimulai dari pemeriksaan dan rencana perawatan yang dipersonalisasi.",
-    priceFrom: 5000000,
-    minutes: 60,
-  },
-  {
     slug: "gigi-anak",
     name: "Perawatan Gigi Anak",
     short: "Ramah untuk si kecil",
@@ -105,7 +107,7 @@ export const services: Service[] = [
   },
 ];
 
-export const featuredSlugs = ["scaling", "tambal-gigi", "bleaching", "ortodonti", "gigi-anak"];
+export const featuredSlugs = ["konsultasi", "scaling", "tambal-gigi", "bleaching", "gigi-anak"];
 
 export const testimonials = [
   {

@@ -1,4 +1,4 @@
-# Arsitektur Website Klinik — drg Dava Fathiyatuzzakiyah
+# Arsitektur Website Klinik — drg. Dava Fathiyatuzzakiyah
 
 Dokumen arsitektur & roadmap untuk website praktik dokter gigi. Target: website cepat, mudah dikelola staf non-teknis, dan benar-benar membawakan pasien (bukan sekadar brosur digital).
 
@@ -107,7 +107,7 @@ model Service {
 
 model Dentist {
   id       String    @id @default(cuid())
-  name     String    // "drg Dava Fathiyatuzzakiyah"
+  name     String    // "drg. Dava Fathiyatuzzakiyah"
   bio      String?
   photo    String?
   // multi-dokter-ready: bookings & Schedule terpaut dentistId

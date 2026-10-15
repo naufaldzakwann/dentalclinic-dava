@@ -2,6 +2,7 @@
 
 import { waLink, waBookingMessage } from "@/lib/wa";
 import { useSitePreferences } from "@/components/SitePreferences";
+import { site } from "@/lib/site";
 
 export default function WhatsAppFab() {
   const { clinicLocationId, language, t } = useSitePreferences();
@@ -11,7 +12,7 @@ export default function WhatsAppFab() {
       ? "Taluk Kuantan"
       : null;
   const message = language === "en"
-    ? "Hello, I would like to make an appointment with drg Dava Fathiyatuzzakiyah."
+    ? `Hello, I would like to arrange a consultation with ${site.name}`
     : waBookingMessage;
   const href = waLink(clinicName ? `${message}\n${language === "en" ? "Clinic" : "Lokasi"}: ${clinicName}` : message);
 

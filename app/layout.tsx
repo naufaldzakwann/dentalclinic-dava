@@ -16,14 +16,14 @@ export const metadata: Metadata = {
     template: `%s · ${site.name}`,
   },
   description:
-    "Praktik kedokteran gigi drg Dava Fathiyatuzzakiyah — scaling, tambal gigi, perawatan saluran akar, behel, pemutihan gigi, dan perawatan gigi anak dengan penjelasan yang jelas dan nyaman.",
+    "Praktik spesialis konservasi gigi di Pekanbaru dan Taluk Kuantan. Konsultasi, restorasi gigi, dan perawatan saluran akar dengan booking online.",
   openGraph: {
     type: "website",
     locale: "id_ID",
     siteName: site.fullName,
     title: `${site.fullName} — ${site.tagline}`,
     description:
-      "Perawatan gigi yang telaten dan nyaman untuk semua usia. Booking janji temu lewat WhatsApp.",
+      "Konsultasi dan perawatan spesialis konservasi gigi di Pekanbaru dan Taluk Kuantan. Jadwalkan kunjungan online atau melalui WhatsApp.",
   },
 };
 
@@ -32,7 +32,8 @@ const clinicJsonLd = {
   "@type": "Dentist",
   name: site.fullName,
   alternateName: site.name,
-  description: "Praktik kedokteran gigi dengan perawatan yang telaten dan nyaman.",
+  description: "Praktik spesialis konservasi gigi dengan konsultasi, restorasi gigi, dan perawatan saluran akar.",
+  medicalSpecialty: "Konservasi Gigi",
   telephone: site.phoneDisplay,
   address: clinicLocations.map((location) => ({
     "@type": "PostalAddress",

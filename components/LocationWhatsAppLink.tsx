@@ -2,8 +2,8 @@
 
 import type { ReactNode } from "react";
 import { useSitePreferences } from "@/components/SitePreferences";
-import { waLink } from "@/lib/wa";
-import { services } from "@/lib/site";
+import { waBookingMessage, waLink } from "@/lib/wa";
+import { services, site } from "@/lib/site";
 
 type Props = {
   children: ReactNode;
@@ -17,7 +17,7 @@ export default function LocationWhatsAppLink({ children, className, purpose = "b
   const clinicName = clinicLocationId === "pekanbaru" ? "Pekanbaru" : clinicLocationId === "taluk-kuantan" ? "Taluk Kuantan" : null;
   const message = purpose === "question"
     ? language === "en" ? "Hello, I have a question about dental care." : "Halo, saya ingin bertanya seputar perawatan gigi."
-    : language === "en" ? "Hello, I would like to make an appointment with drg Dava Fathiyatuzzakiyah." : "Halo, saya ingin membuat janji temu di praktik drg Dava Fathiyatuzzakiyah.";
+    : language === "en" ? `Hello, I would like to arrange a consultation with ${site.name}` : waBookingMessage;
   const details = [
     ...(clinicName ? [`${language === "en" ? "Clinic" : "Lokasi"}: ${clinicName}`] : []),
     ...(purpose === "service" && serviceSlug ? [`${language === "en" ? "Treatment" : "Layanan"}: ${t(`service.${serviceSlug}.name`, services.find((item) => item.slug === serviceSlug)?.name ?? serviceSlug)}`] : []),

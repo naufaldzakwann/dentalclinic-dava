@@ -10,7 +10,9 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "node prisma/seed.mjs",
     "db:setup": "prisma migrate dev && node prisma/seed.mjs",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:sync": "node scripts/sync-clinic.mjs",
+    "models:generate": "node scripts/generate-dental-model.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

@@ -7,16 +7,17 @@ import {
   SmileIcon,
   SunIcon,
   HeartIcon,
+  ChatIcon,
 } from "./icons";
 
 export const serviceIcons: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
   default: ToothIcon,
+  konsultasi: ChatIcon,
   scaling: SparkleIcon,
   "tambal-gigi": ToothIcon,
   "perawatan-saluran-akar": ShieldPlusIcon,
   "cabut-gigi": WrenchIcon,
   odontektomi: SmileIcon,
   bleaching: SunIcon,
-  ortodonti: SmileIcon,
   "gigi-anak": HeartIcon,
 };

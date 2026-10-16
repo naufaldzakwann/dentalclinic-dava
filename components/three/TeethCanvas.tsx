@@ -235,7 +235,15 @@ function ViewControls({ reducedMotion, progress, heroBounds, mouthBounds }: { re
   };
   const distance = THREE.MathUtils.lerp(distanceFor(heroBounds), distanceFor(mouthBounds), assembly);
 
-  useEffect(() => { gl.domElement.style.touchAction = "pan-y"; }, [gl]);
+  useEffect(() => {
+    gl.domElement.style.touchAction = "pan-y";
+    // OrbitControls menimpa touch-action wrapper kanvas menjadi "none" setelah render;
+    // nilai efektif touch-action adalah irisan seluruh rantai leluhur, sehingga tanpa
+    // pan-y di wrapper, scroll sentuh mati di seluruh area viewer pada perangkat mobile.
+    for (let node = gl.domElement.parentElement; node instanceof HTMLElement && !node.classList.contains("dental-viewer"); node = node.parentElement) {
+      node.style.touchAction = "pan-y";
+    }
+  }, [gl]);
   useEffect(() => {
     const target = controls.current?.target ?? new THREE.Vector3();
     camera.position.sub(target).setLength(distance).add(target);

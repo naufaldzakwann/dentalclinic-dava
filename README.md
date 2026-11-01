@@ -1,6 +1,6 @@
 # Dava Dental Care
 
-Website praktik **drg. Dava Fathiyatuzzakiyah, Sp.KG.**, spesialis konservasi gigi, dengan lokasi kunjungan di Pekanbaru dan Taluk Kuantan. Situs memuat informasi konsultasi dan perawatan konservasi gigi, booking online, serta dashboard admin.
+Website praktik **drg. Dava Fathiyatuzzakiyah, Sp.KG.**, spesialis konservasi gigi, dengan lokasi kunjungan di Pekanbaru dan Taluk Kuantan. Situs memuat informasi konsultasi dan perawatan konservasi gigi, janji temu melalui WhatsApp, serta dashboard administrasi dari sistem sebelumnya.
 
 Proyek memakai Next.js 15 (App Router, TypeScript), Tailwind CSS v4, React Three Fiber untuk intro 3D, dan Prisma dengan SQLite di pengembangan lokal. Konfigurasi database dapat dipindah ke Postgres/Supabase untuk produksi.
 
@@ -20,18 +20,27 @@ npm run start          # jalankan hasil build
 - **Intro 3D mengikuti scroll**: satu geraham tampil lebih dahulu, lalu transisi memperlihatkan susunan gigi dalam mulut sebelum pengunjung melanjutkan ke konten beranda. Ilustrasi statis menggantikan model jika WebGL atau pemuatan 3D gagal.
 - **Identitas visual violet**, pilihan Bahasa Indonesia/Inggris, tema terang/gelap, dan tata letak responsif.
 - **Beranda** memuat perawatan konservasi gigi, pendekatan praktik, alur kunjungan, pilihan lokasi, FAQ, serta tautan booking.
-- **Halaman publik**: `/layanan`, `/tentang`, `/kontak`, dan `/galeri`. Visual galeri memakai ilustrasi dan diberi keterangan sesuai sumbernya.
+- **Halaman publik**: `/layanan`, `/tentang`, `/kontak`, `/galeri`, dan `/kebijakan-privasi`. Visual galeri memakai ilustrasi dan diberi keterangan sesuai sumbernya. Halaman privasi menjelaskan perencana pesan WhatsApp, preferensi browser, layanan eksternal WhatsApp, serta catatan administrasi yang tersimpan terpisah.
 - **Kontak dan pencarian**: tombol WhatsApp memakai identitas dokter dan lokasi pilihan; metadata, sitemap, robots, serta JSON-LD `Dentist` menyertakan informasi praktik. Footer memuat tautan portfolio developer Naufal Dzakwan.
 
-## Fitur Fase 2 — Booking Online & Dashboard
+## Janji temu WhatsApp
 
-- **`/booking`** — form 4 langkah: lokasi klinik → layanan → tanggal & jam (slot 30 menit dihitung dari jam praktik − libur − slot terisi − waktu lewat) → data diri + persetujuan privasi. Kode booking `DFA-YYMMDD-0001`.
+Halaman `/booking` kini menjadi perencana pesan WhatsApp. Pengunjung memilih Pekanbaru atau Taluk Kuantan, lalu boleh menambahkan nama, layanan, tanggal/jam pilihan (WIB), serta catatan. Tombol **Lanjut ke WhatsApp** membuka pesan untuk ditinjau dan dikirim sendiri oleh pengunjung. Tidak ada permintaan ke API ketersediaan/booking, penyimpanan pasien baru, kode booking, atau pemesanan slot melalui halaman ini. Jadwal dikonfirmasi oleh tim klinik lewat chat.
+
+Tautan `/booking?clinic=pekanbaru&service=konsultasi` mendukung pilihan awal yang tervalidasi. Preferensi lokasi tersimpan bersama bahasa dan tema dalam localStorage; isi pesan tidak disimpan. `lib/wa.ts` membentuk pesan dan URL, sementara `clinicLocations` di `lib/site.ts` menyimpan kontak per klinik. Kedua lokasi masih memakai nomor contoh sesuai arahan pengguna; ganti dengan nomor asli sebelum digunakan untuk menerima pasien.
+
+Desain publik menggunakan Plus Jakarta Sans dan palet violet yang sama. Intro 3D beserta model dan alur scroll dipertahankan. Ilustrasi editorial di bagian sambutan merupakan aset generatif, bukan foto klinik; sumber dan prompt tercatat di `docs/visual-assets.md`.
+
+Untuk memeriksa alur publik setelah server berjalan, jalankan `node scripts/e2e.mjs` (default `http://localhost:3000`), atau `BASE_URL=http://localhost:3100 node scripts/e2e.mjs` untuk port lain. Tes mencegat pembukaan WhatsApp dan memblokir permintaan ke API/admin; tidak mengirim pesan atau mengubah database. Tambahkan `E2E_OUTPUT_DIR=/tmp/dava-e2e` bila ingin menyimpan screenshot.
+
+## Administrasi dan catatan sistem sebelumnya
+
+- Form pemesanan slot lama telah diganti dengan perencana pesan WhatsApp di atas. Rute status, API lama, dashboard, dan catatan tersimpan dipertahankan untuk administrasi.
 - **`/booking/[kode]`** — pasien memantau status & membatalkan sendiri tanpa login; slot yang dibatalkan langsung bebas kembali.
 - **API** — `GET /api/availability`, `POST /api/bookings` (validasi zod, honeypot, rate limit per nomor HP).
 - **Dashboard `/admin`** — login password (cookie httpOnly bertanda tangan), kalender booking per tanggal dengan aksi Konfirmasi / Tuntas / No-show / Batalkan, dan **Ekspor CSV**.
-- **`/kebijakan-privasi`** — kebijakan privasi (UU PDP No. 27/2022), wajib karena form menampung data pribadi.
 
-Data operasional (layanan, jam praktik, booking) berada di **Prisma** (`prisma/schema.prisma`); konfigurasi layanan publik berada di `lib/site.ts`. Jalankan `npm run db:sync` setelah memperbarui katalog untuk menyinkronkan dokter dan layanan tanpa mengubah riwayat booking.
+Data operasional sistem sebelumnya (layanan, jam praktik, booking) berada di **Prisma** (`prisma/schema.prisma`); konfigurasi layanan publik berada di `lib/site.ts`. Perencana WhatsApp tidak membaca slot atau menambahkan booking ke database ini. Jalankan `npm run db:sync` setelah memperbarui katalog untuk menyinkronkan dokter dan layanan tanpa mengubah riwayat booking.
 
 ### Akses admin (lokal)
 
@@ -39,7 +48,9 @@ Data operasional (layanan, jam praktik, booking) berada di **Prisma** (`prisma/s
 
 ## Data Konten
 
-Identitas dokter, kontak, daftar lokasi, jam praktik, dan layanan berada di **`lib/site.ts`**. Terjemahan memakai `lib/i18n.ts`; komponen di `components/sections.tsx` dan halaman publik memuat teks tampilan lainnya. Nama dokter pada tautan WhatsApp dan metadata mengikuti konfigurasi `site`.
+Identitas dokter, kontak umum, daftar lokasi beserta nomor WhatsApp per klinik, dan katalog layanan berada di **`lib/site.ts`**. `clinicLocations` menentukan tujuan WhatsApp untuk lokasi yang dipilih; `site.whatsapp` menjadi nomor cadangan. Jadwal publik dikonfirmasi lewat chat. Konstanta `hours` di berkas tersebut merupakan data lama yang tidak ditampilkan pada halaman publik saat ini; jadwal sistem slot sebelumnya berasal dari Prisma.
+
+Terjemahan memakai `lib/i18n.ts`; komponen di `components/sections.tsx` dan halaman publik memuat teks tampilan lainnya. Nama dokter pada tautan WhatsApp dan metadata mengikuti konfigurasi `site`.
 
 ### Data yang perlu dikonfirmasi sebelum rilis
 
@@ -47,11 +58,12 @@ Cari komentar `TODO` di kode. Ringkasnya:
 
 | Data | Lokasi |
 |---|---|
-| Nomor WhatsApp & telepon | `lib/site.ts` → `site.whatsapp` |
+| Nomor WhatsApp per klinik | `lib/site.ts` → `clinicLocations[].whatsapp`; isi nomor masing-masing lokasi bila berbeda |
+| Nomor WhatsApp cadangan & telepon metadata | `lib/site.ts` → `site.whatsapp` dan `site.phoneDisplay` |
 | Alamat lengkap & petunjuk kunjungan | `app/(public)/kontak/page.tsx`; tambahkan alamat yang telah dikonfirmasi |
 | Domain final | `lib/site.ts` → `site.url` |
 | Akun Instagram | `lib/site.ts` → `site.instagram` |
-| Jam praktik final | `lib/site.ts` → `hours` **dan** seed `prisma/seed.mjs` |
+| Jam praktik per lokasi | Saat ini dikonfirmasi lewat WhatsApp; perbarui halaman publik hanya setelah jadwal terverifikasi. Jam pada Prisma/`prisma/seed.mjs` dipakai sistem slot sebelumnya, bukan perencana WhatsApp |
 | Data layanan & harga internal | `lib/site.ts` → `services` dan `prisma/seed.mjs` |
 | Password & secret admin | `.env` → `ADMIN_PASSWORD`, `AUTH_SECRET` |
 | Foto dokter, bila tersedia | `app/(public)/tentang/page.tsx`; identitas dokter: drg. Dava Fathiyatuzzakiyah, Sp.KG., spesialis konservasi gigi |
@@ -79,10 +91,10 @@ app/(public)/        halaman publik + /booking, /booking/[kode], /kebijakan-priv
 app/admin/           dashboard admin (login, kalender booking, ekspor CSV)
 app/api/             availability (GET) & bookings (POST)
 components/three/    intro 3D (TeethCanvas = R3F, TeethExperience = urutan scroll)
-components/booking/  form booking multi-langkah
+components/booking/  perencana pesan WhatsApp (pilihan klinik + detail kunjungan opsional)
 lib/                 site.ts (konten), wa.ts, db.ts, availability.ts, booking.ts, auth.ts, ratelimit.ts
 prisma/              schema + seed; dev.db (SQLite, di-gitignore)
-scripts/             shots.mjs (QA visual), e2e.mjs (QA end-to-end booking & admin)
+scripts/             shots.mjs (QA visual), e2e.mjs (QA perencana pesan WhatsApp publik)
 public/models/       dava-dentition.glb (model asli), teeth-real.glb (arsip)
 ```
 
@@ -93,12 +105,12 @@ public/models/       dava-dentition.glb (model asli), teeth-real.glb (arsip)
 - Progres scroll mengatur transisi geraham ke tampilan mulut; setelah intro, halaman berlanjut ke informasi praktik dan perawatan.
 - Komponen mempertimbangkan `prefers-reduced-motion` dan memakai ilustrasi pengganti saat WebGL atau model tidak tersedia. Model berfungsi sebagai ilustrasi visual untuk situs.
 
-## Catatan Teknis Booking
+## Catatan Teknis Booking Sistem Sebelumnya
 
-- Slot aktif dikunci lewat kolom `Booking.slotKey` unik (`{dentist}|{tanggal}|{jam}`); saat dibatalkan kolomnya di-NULL-kan sehingga jam itu langsung bisa dipesan ulang — constraint `@@unique([dentistId, date, slotTime])` di SQLite ternyata juga menghitung baris cancelled.
+- Slot aktif dikunci lewat kolom `Booking.slotKey` unik (`{lokasi}|{dentist}|{tanggal}|{jam}`); saat dibatalkan kolomnya di-NULL-kan sehingga jam itu langsung bisa dipesan ulang — constraint `@@unique([dentistId, date, slotTime])` di SQLite ternyata juga menghitung baris cancelled.
 - Kode booking dijamin unik dengan retry berurutan; tabrakan slot antar-submit bersamaan ditolak oleh constraint, bukan oleh timing.
 - Sesi admin = cookie httpOnly bertanda tangan HMAC (`AUTH_SECRET`); password dibandingkan timing-safe.
-- Rate limit & sesi masih in-memory — untuk multi-instance pindahkan ke Upstash (lihat `docs/ARCHITECTURE.md` §8).
+- Rate limit masih in-memory; untuk multi-instance pindahkan penyimpanan hit ke layanan bersama seperti Upstash (lihat `docs/ARCHITECTURE.md` §8). Sesi admin diverifikasi dari cookie bertanda tangan tanpa penyimpanan sesi di memori server.
 
 ## Fase Berikutnya
 

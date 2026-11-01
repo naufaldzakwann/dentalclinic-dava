@@ -1,83 +1,55 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { services, site } from "@/lib/site";
-import { serviceIcons } from "@/components/service-icons";
-import { ArrowRightIcon, ClockIcon } from "@/components/icons";
-import { T } from "@/components/SitePreferences";
 import Copy from "@/components/LocalizedCopy";
-import LocationWhatsAppLink from "@/components/LocationWhatsAppLink";
+import { ArrowRightIcon } from "@/components/icons";
+import { T } from "@/components/SitePreferences";
+import { services } from "@/lib/site";
+import styles from "../public-pages.module.css";
 
 export const metadata: Metadata = {
   title: "Layanan Perawatan",
-  description: `Kenali pilihan konsultasi dan perawatan gigi bersama ${site.name}, ${site.specialty.toLowerCase()}, dan rencanakan kunjungan Anda melalui booking online.`,
+  description: "Pilihan konsultasi dan perawatan gigi di Pekanbaru dan Taluk Kuantan. Diskusikan kebutuhan dan jadwal kunjungan melalui WhatsApp.",
 };
 
-const categories = [
-  { id: "consultation", label: "Konsultasi", en: "Consultation", slugs: ["konsultasi"] },
-  { id: "preventive", label: "Pencegahan", en: "Preventive care", slugs: ["scaling", "gigi-anak"] },
-  { id: "restorative", label: "Restorasi", en: "Restorative care", slugs: ["tambal-gigi", "perawatan-saluran-akar"] },
-  { id: "aesthetic", label: "Estetika gigi", en: "Dental aesthetics", slugs: ["bleaching"] },
-  { id: "surgical", label: "Bedah mulut", en: "Oral surgery", slugs: ["cabut-gigi", "odontektomi"] },
+const treatments = [
+  { slug: "konsultasi", category: "Pemeriksaan", categoryEn: "Examination", body: "Mulai dengan menceritakan keluhan Anda. Pemeriksaan membantu dokter menjelaskan kondisi gigi, pilihan perawatan, dan langkah berikutnya.", bodyEn: "Start by telling us what’s bothering you. An examination helps your dentist explain your dental condition, treatment options, and next steps." },
+  { slug: "scaling", category: "Perawatan rutin", categoryEn: "Routine care", body: "Pembersihan karang gigi dan pemeriksaan gusi. Sampaikan bila gusi mudah berdarah atau Anda punya pertanyaan tentang perawatan sehari-hari.", bodyEn: "Tartar removal and a gum examination. Let your dentist know if your gums bleed easily or you have questions about daily care." },
+  { slug: "tambal-gigi", category: "Restorasi", categoryEn: "Restorative care", body: "Perawatan untuk memperbaiki bagian gigi yang berlubang atau rusak. Dokter akan menjelaskan bahan dan rencana perawatan sesuai hasil pemeriksaan.", bodyEn: "Care to restore decayed or damaged parts of a tooth. Your dentist will explain the materials and treatment plan after examining your teeth." },
+  { slug: "perawatan-saluran-akar", category: "Konservasi gigi", categoryEn: "Conservative dentistry", body: "Perawatan pada bagian dalam gigi untuk membantu mempertahankan gigi yang masih dapat dirawat. Tahapan dan jumlah kunjungan mengikuti kondisi masing-masing gigi.", bodyEn: "Treatment inside a tooth to help preserve a tooth that can still be treated. The steps and number of visits depend on its condition." },
+  { slug: "bleaching", category: "Estetika gigi", categoryEn: "Dental aesthetics", body: "Konsultasikan perubahan warna gigi dan hasil yang Anda harapkan. Pemeriksaan lebih dahulu membantu menentukan apakah pemutihan sesuai untuk Anda.", bodyEn: "Discuss changes in tooth colour and the result you’re hoping for. An examination comes first to determine whether whitening is suitable for you." },
+  { slug: "gigi-anak", category: "Kesehatan gigi anak", categoryEn: "Children’s dental health", body: "Pemeriksaan gigi anak, perawatan sesuai kebutuhan, serta panduan untuk orang tua. Ceritakan pengalaman kunjungan sebelumnya agar dokter dapat menyesuaikan pendekatan.", bodyEn: "Children’s examinations, care as needed, and guidance for parents. Share any previous dental experiences so the dentist can adapt the visit." },
+  { slug: "cabut-gigi", category: "Tindakan gigi", categoryEn: "Dental procedures", body: "Dokter menilai kondisi gigi dan membahas pilihan sebelum menentukan pencabutan. Penjelasan mencakup persiapan serta perawatan setelah tindakan.", bodyEn: "Your dentist assesses the tooth and discusses the options before deciding on extraction. You’ll receive information about preparation and care after the procedure." },
+  { slug: "odontektomi", category: "Gigi bungsu", categoryEn: "Wisdom teeth", body: "Konsultasi untuk gigi bungsu yang membutuhkan penanganan lebih lanjut. Dokter menilai kebutuhan pemeriksaan penunjang dan menjelaskan rencana tindakan atau rujukan.", bodyEn: "A consultation for wisdom teeth that need further attention. Your dentist assesses the need for additional examinations and explains the treatment or referral plan." },
 ];
 
 export default function LayananPage() {
-  return (
-    <div className="page-shell pb-20 sm:pb-28">
-      <header className="page-intro border-b border-ink/10">
-        <p className="eyebrow"><Copy id="Perawatan kami" en="Our treatments" /></p>
-        <div className="mt-5 grid gap-7 lg:grid-cols-[1.2fr_0.8fr] lg:items-end lg:gap-20">
-          <h1 className="display-title max-w-3xl"><Copy id="Perawatan yang tepat. Senyum yang sehat." en="Thoughtful care. A healthier smile." /></h1>
-          <p className="body-copy max-w-lg lg:pb-2"><Copy id="Setiap senyum punya kebutuhan berbeda. Kenali pilihan perawatan, lalu diskusikan langkah yang sesuai bersama dokter." en="Every smile has different needs. Explore your treatment options, then discuss the right next step with your dentist." /></p>
+  return <div className="page-shell pb-20 sm:pb-28">
+    <header className={styles.treatmentIntro}>
+      <p className="eyebrow"><Copy id="Layanan perawatan" en="Our treatments" /></p>
+      <div className={styles.treatmentIntroGrid}>
+        <h1 className={styles.treatmentTitle}><span><Copy id="Perawatan gigi," en="Dental care," /></span><span><Copy id="sesuai kebutuhan." en="for your needs." /></span></h1>
+        <div className={styles.treatmentIntroCopy}>
+          <p><Copy id="Mulai dari pemeriksaan, temukan perawatan yang sesuai dengan kondisi gigi Anda. Kami membantu menjelaskan pilihan dan langkah selanjutnya." en="Start with an examination to find care that suits your teeth. We’ll help explain your options and the next steps." /></p>
+          <Link href="/booking?service=konsultasi" className="btn-secondary"><Copy id="Mulai dengan konsultasi" en="Start with a consultation" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link>
         </div>
-      </header>
-
-      <nav className="flex flex-wrap gap-2 py-7" aria-label="Treatment categories">
-        {categories.map((category) => (
-          <a key={category.id} href={`#${category.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/10 bg-white px-5 py-2.5 text-xs font-semibold text-ink transition hover:border-brand-400 hover:text-brand-700">
-            <Copy id={category.label} en={category.en} /><span aria-hidden="true">↗</span>
-          </a>
-        ))}
-      </nav>
-
-      <div className="space-y-14 pt-5 sm:space-y-20">
-        {categories.map((category, categoryIndex) => (
-          <section key={category.id} id={category.id} className="scroll-mt-28">
-            <div className="mb-6 flex items-center gap-4">
-              <span className="text-xs font-medium tabular-nums text-brand-600">0{categoryIndex + 1}</span>
-              <h2 className="section-heading !text-2xl"><Copy id={category.label} en={category.en} /></h2>
-              <div className="ml-2 h-px flex-1 bg-ink/10" aria-hidden="true" />
-            </div>
-            <div className={`grid gap-5 ${category.slugs.length > 1 ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
-              {category.slugs.map((slug) => {
-                const service = services.find((item) => item.slug === slug)!;
-                const Icon = serviceIcons[slug] ?? serviceIcons.default;
-                return (
-                  <article key={slug} id={slug} className="editorial-card flex scroll-mt-28 flex-col p-7 sm:p-9">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-brand-700"><Icon width={27} height={27} aria-hidden="true" /></span>
-                      <span className="inline-flex items-center gap-1.5 text-xs text-ink-soft"><ClockIcon width={14} height={14} aria-hidden="true" /> ±{service.minutes} <T id="service.minutes" fallback="menit" /></span>
-                    </div>
-                    <h3 className="mt-7 text-xl font-semibold tracking-tight text-ink sm:text-2xl"><T id={`service.${slug}.name`} fallback={service.name} /></h3>
-                    <p className="mt-3 flex-1 text-sm leading-7 text-ink-soft"><T id={`service.${slug}.desc`} fallback={service.desc} /></p>
-                    <LocationWhatsAppLink purpose="service" serviceSlug={slug} className="mt-7 inline-flex min-h-11 items-center justify-between gap-5 border-t border-ink/10 pt-5 text-sm font-semibold text-brand-700 transition hover:text-brand-500">
-                      <Copy id="Diskusikan perawatan" en="Discuss this treatment" /><ArrowRightIcon width={19} height={19} aria-hidden="true" />
-                    </LocationWhatsAppLink>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        ))}
       </div>
+    </header>
 
-      <section className="mt-16 grid gap-7 rounded-[1.5rem] border border-brand-200 bg-brand-50 p-8 sm:mt-20 sm:p-12 lg:grid-cols-[1fr_auto] lg:items-center">
-        <div>
-          <p className="eyebrow"><Copy id="Mulai dengan konsultasi" en="Start with a consultation" /></p>
-          <h2 className="section-heading mt-3 max-w-xl"><Copy id="Belum yakin harus mulai dari mana?" en="Not sure where to start?" /></h2>
-          <p className="body-copy mt-3 max-w-xl !text-sm"><Copy id="Sampaikan keluhan Anda saat membuat janji. Dokter akan membantu menentukan perawatan setelah pemeriksaan." en="Tell us what’s bothering you when you book. Your dentist will help determine your treatment after an examination." /></p>
-        </div>
-        <Link href="/booking" className="btn-primary justify-self-start"><Copy id="Jadwalkan kunjungan" en="Book a visit" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link>
-      </section>
+    <nav className={styles.indexNav} aria-label="Layanan / Treatments">
+      {treatments.map((item, index) => <a key={item.slug} href={`#${item.slug}`}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><T id={`service.${item.slug}.name`} fallback={services.find(service => service.slug === item.slug)!.name} /></a>)}
+    </nav>
+
+    <div className={styles.serviceList}>
+      {treatments.map((item, index) => <article key={item.slug} id={item.slug} className={styles.serviceRow}>
+        <span className={styles.rowNumber} aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+        <div><h2><T id={`service.${item.slug}.name`} fallback={services.find(service => service.slug === item.slug)!.name} /></h2><p className={styles.serviceCategory}><Copy id={item.category} en={item.categoryEn} /></p></div>
+        <div className={styles.serviceDetails}><p><Copy id={item.body} en={item.bodyEn} /></p><Link href={`/booking?service=${item.slug}`}><Copy id="Buat janji untuk layanan ini" en="Arrange a visit for this treatment" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link></div>
+      </article>)}
     </div>
-  );
+
+    <section className={styles.callout}>
+      <div><p className="eyebrow"><Copy id="Konsultasi pertama" en="Your first consultation" /></p><h2 className="section-heading mt-3"><Copy id="Belum tahu perawatan yang dibutuhkan?" en="Unsure which treatment you need?" /></h2><p><Copy id="Pilih konsultasi dan ceritakan keluhan Anda. Jadwal, biaya, serta ketersediaan layanan di lokasi pilihan akan dikonfirmasi melalui WhatsApp." en="Choose a consultation and tell us about your concern. The schedule, fees, and treatment availability at your chosen location will be confirmed through WhatsApp." /></p></div>
+      <Link href="/booking?service=konsultasi" className="btn-primary"><Copy id="Jadwalkan konsultasi" en="Arrange a consultation" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link>
+    </section>
+  </div>;
 }

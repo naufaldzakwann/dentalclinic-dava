@@ -1,9 +1,52 @@
 import Link from "next/link";
-import { site } from "@/lib/site";
-import { ArrowRightIcon, ToothIcon } from "./icons";
-import { T } from "./SitePreferences";
+import { clinicLocations, site } from "@/lib/site";
+import { ArrowRightIcon } from "./icons";
 import Copy from "./LocalizedCopy";
+import WhatsAppIcon from "./WhatsAppIcon";
+import styles from "./Footer.module.css";
 
 export default function Footer() {
-  return <footer className="site-footer"><div className="page-shell"><div className="footer-top"><div className="footer-brand-area"><Link className="brand-lockup" href="/"><span className="brand-symbol"><ToothIcon width={27} height={27} aria-hidden /></span><span><span className="brand-name">dava<span>.</span></span><span className="brand-caption">DENTAL CARE</span></span></Link><p><Copy id="Perawatan penuh perhatian. Untuk senyum yang terasa seperti diri Anda." en="Thoughtful dental care. For a smile that feels like you." /></p><span className="footer-doctor">{site.name}</span></div><nav aria-label="Footer"><h2><Copy id="Jelajahi" en="Explore" /></h2><Link href="/layanan"><T id="nav.services" fallback="Perawatan" /></Link><Link href="/tentang"><Copy id="Tentang kami" en="About us" /></Link><Link href="/galeri"><T id="nav.gallery" fallback="Galeri" /></Link><Link href="/kontak"><T id="nav.contact" fallback="Kontak" /></Link></nav><div className="footer-hours"><h2><T id="footer.hours" fallback="Waktu kunjungan" /></h2><p><Copy id="Senin–Jumat" en="Monday–Friday" /><span>09.00–17.00</span></p><p><Copy id="Sabtu" en="Saturday" /><span>09.00–14.00</span></p><p><Copy id="Minggu & libur" en="Sunday & holidays" /><span><Copy id="Tutup" en="Closed" /></span></p><small>WIB · UTC+7</small></div><div className="footer-visit"><h2><Copy id="Sampai bertemu" en="See you soon" /></h2><p>Pekanbaru & Taluk Kuantan<br />Riau, Indonesia</p><Link className="text-link" href="/booking"><Copy id="Rencanakan kunjungan" en="Plan your visit" /><ArrowRightIcon width={16} height={16} aria-hidden /></Link></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Dava Dental Care.</span><div><span>MADE FOR YOUR SMILE.</span><Link href="/kebijakan-privasi"><T id="privacy.title" fallback="Kebijakan privasi" /></Link></div><a className="developer-credit" href="https://porto-ten-tau.vercel.app/" target="_blank" rel="noopener noreferrer">Developed by <span>Naufal Dzakwan</span><svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg></a></div></div></footer>;
+  return <footer className={`site-footer ${styles.footer}`}>
+    <div className="page-shell">
+      <div className={styles.main}>
+        <div className={styles.brandArea}>
+          <Link href="/" className={styles.brand} aria-label="Dava Dental Care">dava<span>.</span></Link>
+          <span className={styles.brandCaption}>DENTAL CARE</span>
+          <p><Copy id="Perawatan penuh perhatian, untuk senyum Anda." en="Thoughtful care, for your smile." /></p>
+          <span className={styles.doctor}>{site.name}</span>
+        </div>
+        <nav className={styles.explore} aria-label="Footer">
+          <h2><Copy id="Jelajahi" en="Explore" /></h2>
+          <Link href="/layanan"><Copy id="Perawatan" en="Treatments" /></Link>
+          <Link href="/tentang"><Copy id="Dokter" en="Dentist" /></Link>
+          <Link href="/kontak"><Copy id="Lokasi" en="Locations" /></Link>
+          <Link href="/galeri"><Copy id="Galeri" en="Gallery" /></Link>
+        </nav>
+        <div className={styles.clinics}>
+          <h2><Copy id="Dua lokasi, satu perhatian." en="Two locations. The same care." /></h2>
+          {clinicLocations.map(location => <Link key={location.id} href={`/booking?clinic=${location.id}`}>
+            <span>{location.city}</span><ArrowRightIcon width={15} height={15} aria-hidden="true" />
+          </Link>)}
+          <p>Riau, Indonesia</p>
+        </div>
+        <div className={styles.appointment}>
+          <h2><Copy id="Rencanakan kunjungan" en="Plan your visit" /></h2>
+          <p><Copy id="Pilih klinik, lalu bicarakan jadwal kunjungan Anda lewat WhatsApp." en="Choose a clinic, then arrange your appointment with us on WhatsApp." /></p>
+          <Link href="/booking" className={styles.appointmentLink}>
+            <WhatsAppIcon width={17} height={17} aria-hidden="true" />
+            <Copy id="Buat janji" en="Book a visit" />
+            <ArrowRightIcon width={16} height={16} aria-hidden="true" />
+          </Link>
+        </div>
+      </div>
+      <div className={styles.bottom}>
+        <span>© {new Date().getFullYear()} Dava Dental Care.</span>
+        <Link href="/kebijakan-privasi"><Copy id="Kebijakan privasi" en="Privacy policy" /></Link>
+        <a className={`developer-credit ${styles.credit}`} href="https://porto-ten-tau.vercel.app/" target="_blank" rel="noopener noreferrer">
+          Developed by <span>Naufal Dzakwan</span>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </a>
+      </div>
+    </div>
+  </footer>;
 }

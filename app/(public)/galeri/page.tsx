@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Copy from "@/components/LocalizedCopy";
 import { ArrowRightIcon } from "@/components/icons";
+import styles from "../public-pages.module.css";
 
 export const metadata: Metadata = {
   title: "Galeri Perawatan",
@@ -62,37 +63,32 @@ function RoomIllustration({ room }: { room: Room }) {
 }
 
 const scenes: { room: Room; id: string; en: string; body: string; bodyEn: string }[] = [
-  { room: "treatment", id: "Ruang untuk merawat senyum", en: "A space to care for your smile", body: "Mengenal suasana perawatan gigi, satu langkah pada satu waktu.", bodyEn: "Getting familiar with dental care, one step at a time." },
-  { room: "waiting", id: "Waktu untuk merasa tenang", en: "A moment to feel at ease", body: "Beri diri Anda waktu sebelum memulai kunjungan.", bodyEn: "Give yourself a moment before your appointment begins." },
-  { room: "preparation", id: "Persiapan sebelum perawatan", en: "Preparing for your care", body: "Setiap kunjungan memiliki proses persiapan sebelum tindakan.", bodyEn: "Each visit includes preparation before treatment begins." },
-  { room: "consultation", id: "Percakapan yang berarti", en: "A conversation that matters", body: "Mulai dengan pertanyaan dan pahami pilihan perawatan Anda.", bodyEn: "Start with your questions and understand your treatment options." },
+  { room: "consultation", id: "Mulai dari percakapan", en: "Start with a conversation", body: "Ceritakan keluhan dan pertanyaan yang ingin Anda bahas bersama dokter.", bodyEn: "Share your concerns and the questions you’d like to discuss with your dentist." },
+  { room: "waiting", id: "Sebelum pemeriksaan", en: "Before the examination", body: "Siapkan informasi tentang perawatan sebelumnya dan obat yang sedang Anda gunakan.", bodyEn: "Have information about previous dental care and any medication you currently take." },
+  { room: "treatment", id: "Mengenal ruang perawatan", en: "Getting to know the treatment room", body: "Dokter akan menjelaskan pemeriksaan dan rencana perawatan sebelum tindakan.", bodyEn: "Your dentist will explain the examination and care plan before treatment." },
+  { room: "preparation", id: "Persiapan setiap kunjungan", en: "Preparing for each visit", body: "Konfirmasikan kebutuhan persiapan khusus saat menyepakati jadwal kunjungan.", bodyEn: "Ask about any specific preparations when confirming your appointment." },
 ];
 
 export default function GaleriPage() {
-  return (
-    <div className="page-shell pb-20 sm:pb-28">
-      <header className="page-intro">
-        <p className="eyebrow"><Copy id="Galeri visual" en="Visual journal" /></p>
-        <div className="mt-5 grid gap-7 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-20">
-          <h1 className="display-title"><Copy id="Perspektif baru tentang perawatan gigi." en="A fresh perspective on dental care." /></h1>
-          <div className="lg:pb-2"><p className="body-copy"><Copy id="Gambaran tentang ruang, percakapan, dan perhatian dalam setiap kunjungan." en="An illustrated look at the spaces, conversations, and care behind a dental visit." /></p><p className="mt-4 text-xs leading-6 text-ink-soft"><Copy id="Seluruh visual merupakan ilustrasi, bukan foto atau dokumentasi klinik." en="All visuals are illustrations, rather than photographs or documentation of the practice." /></p></div>
-        </div>
-      </header>
-
-      <div className="grid gap-x-7 gap-y-10 md:grid-cols-2">
-        {scenes.map((scene, index) => <figure key={scene.room} className={index % 2 === 1 ? "md:translate-y-12" : ""}>
-          <div className="relative aspect-[15/11] overflow-hidden rounded-[1.5rem] border border-brand-200/50 bg-[#f0eaf7]">
-            <RoomIllustration room={scene.room} />
-            <span className="absolute left-5 top-5 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-800"><Copy id="Ilustrasi" en="Illustration" /> / 0{index + 1}</span>
-          </div>
-          <figcaption className="px-1 pt-5"><h2 className="text-xl font-semibold tracking-tight text-ink"><Copy id={scene.id} en={scene.en} /></h2><p className="mt-2 text-sm leading-7 text-ink-soft"><Copy id={scene.body} en={scene.bodyEn} /></p></figcaption>
-        </figure>)}
+  return <div className="page-shell pb-20 sm:pb-28">
+    <header className="page-intro">
+      <p className="eyebrow"><Copy id="Galeri ilustrasi" en="Illustrated gallery" /></p>
+      <div className={styles.introGrid}>
+        <h1 className="display-title"><Copy id="Membayangkan kunjungan Anda." en="Picture your dental visit." /></h1>
+        <div><p className="body-copy"><Copy id="Sebuah seri ilustrasi tentang kunjungan ke dokter gigi, mulai dari percakapan hingga persiapan perawatan." en="A series of illustrations about visiting the dentist, beginning with a conversation and preparing for care." /></p><p className={styles.introNote}><Copy id="Visual di halaman ini merupakan ilustrasi, bukan foto ruang atau fasilitas klinik." en="These visuals are illustrations, not photographs of the practice or its facilities." /></p></div>
       </div>
+    </header>
 
-      <section className="mt-16 flex flex-col justify-between gap-7 border-t border-ink/10 pt-10 md:mt-28 md:flex-row md:items-center">
-        <div><p className="eyebrow"><Copy id="Kunjungi kami" en="Visit us" /></p><h2 className="section-heading mt-3"><Copy id="Mari berkenalan langsung." en="Let’s meet in person." /></h2></div>
-        <Link href="/kontak" className="btn-secondary self-start md:self-auto"><Copy id="Lokasi & kontak" en="Locations & contact" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link>
-      </section>
+    <div className={styles.galleryGrid}>
+      {scenes.map((scene, index) => <figure key={scene.room}>
+        <div className={styles.galleryArt}><RoomIllustration room={scene.room} /><span className={styles.artBadge}><Copy id="Ilustrasi" en="Illustration" /> / 0{index + 1}</span></div>
+        <figcaption className={styles.galleryCaption}><span className={styles.rowNumber} aria-hidden="true">0{index + 1}</span><div><h2><Copy id={scene.id} en={scene.en} /></h2><p><Copy id={scene.body} en={scene.bodyEn} /></p></div></figcaption>
+      </figure>)}
     </div>
-  );
+
+    <section className={styles.callout}>
+      <div><p className="eyebrow"><Copy id="Rencanakan kunjungan" en="Plan your visit" /></p><h2 className="section-heading mt-3"><Copy id="Sampaikan kebutuhan Anda melalui WhatsApp." en="Tell us what you need on WhatsApp." /></h2><p><Copy id="Pilih Pekanbaru atau Taluk Kuantan, lalu diskusikan jadwal dengan tim klinik." en="Choose Pekanbaru or Taluk Kuantan, then discuss the schedule with the clinic team." /></p></div>
+      <Link href="/booking" className="btn-primary"><Copy id="Buat janji temu" en="Arrange a visit" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link>
+    </section>
+  </div>;
 }

@@ -16,8 +16,10 @@ export const site = {
 } as const;
 
 export const clinicLocations = [
-  { id: "pekanbaru", city: "Pekanbaru", region: "Riau" },
-  { id: "taluk-kuantan", city: "Taluk Kuantan", region: "Riau" },
+  // Each practice can use its own WhatsApp number. Both currently use the
+  // approved example contact; replace them here when real contacts are ready.
+  { id: "pekanbaru", city: "Pekanbaru", region: "Riau", whatsapp: site.whatsapp },
+  { id: "taluk-kuantan", city: "Taluk Kuantan", region: "Riau", whatsapp: site.whatsapp },
 ] as const;
 
 export type ClinicLocationId = (typeof clinicLocations)[number]["id"];
@@ -133,7 +135,7 @@ export const testimonials = [
 export const faqs = [
   {
     q: "Apakah harus membuat janji temu dulu?",
-    a: "Sangat disarankan. Dengan janji temu, waktu tunggu Anda dijamin minim dan dokter sudah menyiapkan perawatan yang Anda butuhkan. Booking bisa lewat form online atau WhatsApp.",
+    a: "Kami menyarankan membuat janji lebih dahulu. Pilih lokasi klinik lalu atur kunjungan melalui WhatsApp. Tim klinik akan mengonfirmasi jadwal Anda melalui chat.",
   },
   {
     q: "Apakah perawatan gigi di sini sakit?",

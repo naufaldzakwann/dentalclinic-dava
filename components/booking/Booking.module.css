@@ -1,0 +1,56 @@
+.appointment-layout { display: grid; grid-template-columns: minmax(0, .83fr) minmax(0, 1.17fr); align-items: start; gap: clamp(44px, 7vw, 100px); padding-block: 76px 112px; }
+.appointment-intro { padding-top: 18px; }
+.appointment-intro h1 { font-size: clamp(42px, 4.9vw, 66px); font-weight: 500; line-height: 1.1; letter-spacing: -.055em; max-width: 460px; }
+.appointment-intro h1 span { color: var(--color-brand-600); }
+.appointment-intro > p { margin-top: 24px; max-width: 370px; font-size: 14px; line-height: 1.9; color: var(--color-ink-soft); }
+.appointment-process { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); display: grid; gap: 24px; max-width: 360px; }
+.appointment-process li { display: flex; align-items: flex-start; gap: 16px; }
+.appointment-process li > span { width: 30px; height: 30px; flex-shrink: 0; display: grid; place-items: center; background: var(--color-brand-50); border: 1px solid var(--color-brand-100); border-radius: 50%; color: var(--color-brand-600); font-size: 10px; font-weight: 600; }
+.appointment-process strong { display: block; font-size: 13px; font-weight: 600; padding-top: 4px; }
+.appointment-process p { margin-top: 6px; font-size: 12px; line-height: 1.8; color: var(--color-ink-soft); }
+.appointment-doctor { display: flex; align-items: center; gap: 13px; margin-top: 36px; color: var(--color-ink-soft); }
+.appointment-doctor > span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--color-paper); color: var(--color-brand-600); flex-shrink: 0; }
+.appointment-doctor strong { display: block; font-size: 11px; color: var(--color-ink); font-weight: 600; }
+.appointment-doctor p { margin-top: 5px; font-size: 10px; }
+.appointment-form { background: var(--surface); border: 1px solid var(--line); padding: 34px; border-radius: 20px; box-shadow: 0 15px 50px -35px #56367840; min-width: 0; }
+.appointment-form-top { display: flex; align-items: center; gap: 14px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+.appointment-form-icon { display: grid; place-items: center; height: 45px; width: 45px; border-radius: 13px; background: var(--color-brand-50); color: var(--color-brand-700); flex-shrink: 0; }
+.appointment-form-title { font-size: 17px; font-weight: 600; letter-spacing: -.025em; }
+.appointment-form-top p + p { font-size: 11px; line-height: 1.7; color: var(--color-ink-soft); margin-top: 5px; }
+.appointment-fieldset { border: 0; margin: 28px 0 0; padding: 0; min-width: 0; }
+.appointment-legend { display: flex; align-items: center; gap: 10px; margin-bottom: 17px; padding: 0; width: 100%; font-size: 14px; font-weight: 600; color: var(--color-ink); }
+.appointment-legend > span { color: var(--color-brand-500); font-size: 10px; font-variant-numeric: tabular-nums; }
+.appointment-legend small { margin-left: auto; color: var(--color-ink-soft); font-size: 10px; font-weight: 400; }
+.clinic-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.clinic-option { position: relative; display: flex; gap: 10px; align-items: center; padding: 17px 13px; min-height: 78px; border: 1px solid var(--line); border-radius: 11px; cursor: pointer; transition: border-color .2s, background-color .2s; }
+.clinic-option:hover { border-color: var(--color-brand-300); }
+.clinic-option-selected { background: var(--color-brand-50); border-color: var(--color-brand-500); }
+.clinic-option:focus-within { outline: 2px solid var(--color-brand-500); outline-offset: 3px; }
+.clinic-radio { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.clinic-icon { color: var(--color-brand-600); flex-shrink: 0; }
+.clinic-copy { display: grid; gap: 6px; min-width: 0; }
+.clinic-copy strong { font-size: 12px; font-weight: 600; }
+.clinic-copy > span { color: var(--color-ink-soft); font-size: 10px; }
+.clinic-check { display: grid; place-items: center; width: 16px; height: 16px; border: 1px solid var(--color-brand-200); border-radius: 50%; color: white; margin-left: auto; flex-shrink: 0; }
+.clinic-option-selected .clinic-check { border-color: #7348a8; background: #7348a8; }
+.appointment-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 16px; }
+.appointment-field { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.appointment-field > span { font-size: 12px; font-weight: 500; color: var(--color-ink); }
+.appointment-field input, .appointment-field select, .appointment-field textarea { width: 100%; max-width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: 13px 12px; min-height: 46px; background: var(--color-cream); color: var(--color-ink); font-family: inherit; font-size: 13px; line-height: 1.5; outline: none; }
+.appointment-field select { padding-right: 28px; text-overflow: ellipsis; }
+.appointment-field input::placeholder, .appointment-field textarea::placeholder { color: var(--color-ink-soft); opacity: .85; }
+.appointment-field textarea { resize: vertical; min-height: 86px; }
+.appointment-field input:focus, .appointment-field select:focus, .appointment-field textarea:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-50); background: var(--surface); }
+.appointment-hint { margin-top: 12px; color: var(--color-ink-soft); font-size: 11px; line-height: 1.8; }
+.appointment-note { margin-top: 19px; }
+.appointment-submit { margin-top: 25px; }
+.appointment-button { width: 100%; gap: 12px; min-height: 50px; }
+.appointment-button > svg:last-child { margin-left: auto; }
+.appointment-button > svg:first-child { margin-right: auto; }
+.appointment-submit > p { font-size: 11px; line-height: 1.8; color: var(--color-ink-soft); margin-top: 14px; text-align: center; }
+.appointment-privacy { display: block; width: fit-content; margin: 12px auto 0; font-size: 11px; color: var(--color-brand-700); text-underline-offset: 3px; }
+.appointment-privacy:hover { text-decoration: underline; }
+@media (max-width: 1023px) { .appointment-layout { gap: 36px; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); padding-top: 56px; }.appointment-form { padding: 26px; }.clinic-options { grid-template-columns: 1fr; }.clinic-option { min-height: 66px; }.appointment-intro h1 { font-size: 45px; } }
+@media (max-width: 767px) { .appointment-layout { grid-template-columns: 1fr; gap: 32px; padding-block: 42px 64px; }.appointment-intro { padding-top: 0; }.appointment-intro h1 { max-width: 480px; font-size: clamp(40px, 8vw, 56px); }.appointment-intro > p { max-width: 520px; margin-top: 19px; font-size: 13px; }.appointment-process { display: none; }.appointment-doctor { display: none; }.appointment-form { padding: 26px; }.clinic-options { grid-template-columns: 1fr 1fr; }.clinic-option { padding: 16px 12px; }.appointment-field input, .appointment-field select, .appointment-field textarea { font-size: 16px; }.appointment-field > span { font-size: 12px; } }
+@media (max-width: 430px) { .appointment-form { padding: 23px 20px; border-radius: 16px; }.clinic-options { grid-template-columns: 1fr; gap: 9px; }.clinic-option { min-height: 65px; }.appointment-fields { grid-template-columns: 1fr; gap: 17px; }.appointment-form-title { font-size: 15px; }.appointment-form-top { gap: 11px; }.appointment-legend { font-size: 12px; }.appointment-legend small { font-size: 9px; }.appointment-hint, .appointment-submit > p { font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .clinic-option { transition: none; } }

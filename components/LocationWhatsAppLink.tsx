@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { useSitePreferences } from "@/components/SitePreferences";
-import { waBookingMessage, waLink } from "@/lib/wa";
-import { services, site } from "@/lib/site";
+import { appointmentMessage, waLink } from "@/lib/wa";
+import { getClinicLocation, services } from "@/lib/site";
 
 type Props = {
   children: ReactNode;
@@ -13,16 +14,17 @@ type Props = {
 };
 
 export default function LocationWhatsAppLink({ children, className, purpose = "booking", serviceSlug }: Props) {
-  const { clinicLocationId, language, t } = useSitePreferences();
-  const clinicName = clinicLocationId === "pekanbaru" ? "Pekanbaru" : clinicLocationId === "taluk-kuantan" ? "Taluk Kuantan" : null;
+  const { clinicLocationId, language } = useSitePreferences();
+  const clinic = getClinicLocation(clinicLocationId);
+  const validService = services.some((service) => service.slug === serviceSlug) ? serviceSlug : undefined;
+  if (!clinic || !clinicLocationId) {
+    const href = validService ? `/booking?service=${encodeURIComponent(validService)}` : "/booking";
+    return <Link href={href} className={className}>{children}</Link>;
+  }
   const message = purpose === "question"
-    ? language === "en" ? "Hello, I have a question about dental care." : "Halo, saya ingin bertanya seputar perawatan gigi."
-    : language === "en" ? `Hello, I would like to arrange a consultation with ${site.name}` : waBookingMessage;
-  const details = [
-    ...(clinicName ? [`${language === "en" ? "Clinic" : "Lokasi"}: ${clinicName}`] : []),
-    ...(purpose === "service" && serviceSlug ? [`${language === "en" ? "Treatment" : "Layanan"}: ${t(`service.${serviceSlug}.name`, services.find((item) => item.slug === serviceSlug)?.name ?? serviceSlug)}`] : []),
-  ];
-  const href = waLink(details.length ? `${message}\n${details.join("\n")}` : message);
-
-  return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
+    ? language === "en"
+      ? `Hello, I have a question about dental care.\nClinic: ${clinic.city}`
+      : `Halo, saya ingin bertanya seputar perawatan gigi.\nLokasi klinik: ${clinic.city}`
+    : appointmentMessage({ clinicId: clinicLocationId, language, serviceSlug: purpose === "service" ? validService : undefined });
+  return <a href={waLink(message, clinicLocationId)} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
 }

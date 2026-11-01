@@ -229,3 +229,23 @@ html[data-theme="dark"] .intro-orbit { border-color: #72548830; }
   .intro-scroll { bottom: 12px; }
 }
 @media (max-width: 760px) { .intro-scroll { width: 44px; height: 44px; left: calc(50% - 22px); }.mobile-toggle { min-width: 44px; min-height: 44px; } }
+
+/* Shared editorial typography and controls. The approved 3D intro stays above. */
+.page-intro { padding-block: 76px 58px; }
+.section-heading, .display-title { font-weight: 500; letter-spacing: -.05em; line-height: 1.15; }
+.section-heading { font-size: clamp(36px, 3.65vw, 51px); }
+.display-title { font-size: clamp(43px, 5.2vw, 70px); }
+.eyebrow { font-size: 10px; line-height: 1.7; letter-spacing: .13em; font-weight: 600; }
+.body-copy { font-size: 14px; line-height: 1.9; }
+.btn-primary, .btn-secondary, .btn-light { min-height: 50px; border-radius: 100px; font-size: 13px; font-weight: 500; gap: 16px; padding: 14px 23px; }
+.btn-primary { box-shadow: none; }
+.btn-primary:hover { box-shadow: 0 6px 20px #7348a81a; }
+.btn-secondary { background: transparent; border-color: var(--color-brand-200); color: var(--color-brand-700); }
+.btn-secondary:hover { background: var(--color-brand-50); }
+.text-link { font-size: 13px; font-weight: 500; min-height: 44px; }
+@media (max-width: 760px) {
+  .page-intro { padding-block: 46px 36px; }
+  .section-heading { font-size: 36px; }.display-title { font-size: 43px; }
+  .eyebrow { font-size: 9px; }.body-copy { font-size: 14px; }
+  .btn-primary, .btn-secondary, .btn-light { font-size: 12px; min-height: 48px; padding-inline: 20px; }
+}

@@ -8,6 +8,7 @@ import { MoonIcon, SunIcon } from "@/components/icons";
 type Theme = "light" | "dark";
 
 type SitePreferencesValue = {
+  ready: boolean;
   clinicLocationId: ClinicLocationId | null;
   language: Language;
   theme: Theme;
@@ -55,6 +56,7 @@ export function SitePreferencesProvider({ children }: { children: React.ReactNod
 
   const value = useMemo<SitePreferencesValue>(
     () => ({
+      ready,
       clinicLocationId,
       language,
       theme,
@@ -63,7 +65,7 @@ export function SitePreferencesProvider({ children }: { children: React.ReactNod
       toggleTheme: () => setTheme((current) => (current === "dark" ? "light" : "dark")),
       t: (id, fallback) => translate(language, id, fallback),
     }),
-    [clinicLocationId, language, theme],
+    [clinicLocationId, language, theme, ready],
   );
 
   return <SitePreferencesContext.Provider value={value}>{children}</SitePreferencesContext.Provider>;

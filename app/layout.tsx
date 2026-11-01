@@ -16,14 +16,14 @@ export const metadata: Metadata = {
     template: `%s · ${site.name}`,
   },
   description:
-    "Praktik spesialis konservasi gigi di Pekanbaru dan Taluk Kuantan. Konsultasi, restorasi gigi, dan perawatan saluran akar dengan booking online.",
+    "Praktik spesialis konservasi gigi di Pekanbaru dan Taluk Kuantan. Konsultasi, restorasi gigi, dan perawatan saluran akar dengan janji temu melalui WhatsApp.",
   openGraph: {
     type: "website",
     locale: "id_ID",
     siteName: site.fullName,
     title: `${site.fullName} — ${site.tagline}`,
     description:
-      "Konsultasi dan perawatan spesialis konservasi gigi di Pekanbaru dan Taluk Kuantan. Jadwalkan kunjungan online atau melalui WhatsApp.",
+      "Konsultasi dan perawatan spesialis konservasi gigi di Pekanbaru dan Taluk Kuantan. Pilih lokasi dan atur janji kunjungan melalui WhatsApp.",
   },
 };
 
@@ -41,20 +41,6 @@ const clinicJsonLd = {
     addressRegion: location.region,
     addressCountry: "ID",
   })),
-  openingHoursSpecification: [
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-      opens: "09:00",
-      closes: "17:00",
-    },
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Saturday"],
-      opens: "09:00",
-      closes: "14:00",
-    },
-  ],
 };
 
 export default function RootLayout({

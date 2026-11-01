@@ -29,6 +29,7 @@ type ModelPart = {
 type FitBounds = { horizontalRadius: number; halfHeight: number };
 const DEFAULT_HERO_SLOT = "tooth_U_M1_R";
 const REST_YAW = -0.14;
+const DENTITION_MODEL_URL = "/models/dava-dentition.glb?v=continuous-dentition-2";
 const START_ROTATION = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.22, 0.12, -0.07));
 
 function capturePart(mesh: THREE.Mesh): ModelPart {
@@ -38,21 +39,20 @@ function capturePart(mesh: THREE.Mesh): ModelPart {
   mesh.matrixWorld.decompose(position, quaternion, scale);
   const cloneMaterial = (source: THREE.Material) => {
     if (!(source instanceof THREE.MeshStandardMaterial)) return source.clone();
-    if (source.name === "enamel_ivory") {
-      const material = new THREE.MeshPhysicalMaterial({
+    const dentalSurface = source.name === "enamel_ivory" || source.name === "root_dentin";
+    const material = dentalSurface
+      ? new THREE.MeshPhysicalMaterial({
         color: source.color.clone(), map: source.map, normalMap: source.normalMap, normalScale: source.normalScale.clone(),
         roughness: 0.21, roughnessMap: source.roughnessMap, metalness: 0,
         vertexColors: source.vertexColors, side: source.side,
         ior: 1.52, clearcoat: 0.4, clearcoatRoughness: 0.13, specularIntensity: 0.9, envMapIntensity: 0.7,
-      });
-      material.name = source.name;
-      material.customProgramCacheKey = () => "dava-ivory-enamel-v1";
-      return material;
-    }
-    const material = source.clone();
+      })
+      : source.clone();
+    material.name = source.name;
+    if (source.name === "enamel_ivory") material.customProgramCacheKey = () => "dava-ivory-enamel-v1";
     if (source.name === "root_dentin") {
-      material.roughness = 0.64;
-      material.envMapIntensity = 0.4;
+      // Match enamel exactly at the shared cervical ring, then gradually
+      // become matte dentin down the root instead of drawing a material seam.
       material.onBeforeCompile = (shader) => {
         shader.vertexShader = `varying vec3 vDentinPosition;\n${shader.vertexShader}`.replace("#include <begin_vertex>", "#include <begin_vertex>\nvDentinPosition = position;");
         shader.fragmentShader = `
@@ -63,18 +63,19 @@ function capturePart(mesh: THREE.Mesh): ModelPart {
             return mix(mix(mix(dentinHash(i), dentinHash(i+vec3(1,0,0)), f.x), mix(dentinHash(i+vec3(0,1,0)), dentinHash(i+vec3(1,1,0)), f.x), f.y), mix(mix(dentinHash(i+vec3(0,0,1)), dentinHash(i+vec3(1,0,1)), f.x), mix(dentinHash(i+vec3(0,1,1)), dentinHash(i+vec3(1,1,1)), f.x), f.y), f.z);
           }
           ${shader.fragmentShader}`
-          .replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nfloat dentinGrain = dentinNoise(vDentinPosition * vec3(240.0, 180.0, 240.0));\nroughnessFactor = clamp(roughnessFactor + (dentinGrain - 0.5) * 0.025, 0.5, 0.8);")
+          .replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nfloat dentinBlend = smoothstep(0.025, 0.30, -vDentinPosition.y);\nfloat dentinGrain = dentinNoise(vDentinPosition * vec3(240.0, 180.0, 240.0));\nroughnessFactor = mix(roughnessFactor, 0.58 + (dentinGrain - 0.5) * 0.018, dentinBlend);")
           .replace("#include <normal_fragment_maps>", `#include <normal_fragment_maps>
             float dentinFibres = dentinNoise(vDentinPosition * vec3(280.0, 24.0, 280.0));
-            float dentinHeight = (dentinGrain - 0.5) * 0.00007 + (dentinFibres - 0.5) * 0.00004;
+            float dentinHeight = dentinBlend * ((dentinGrain - 0.5) * 0.00004 + (dentinFibres - 0.5) * 0.000025);
             vec3 dentinDx = dFdx(-vViewPosition), dentinDy = dFdy(-vViewPosition);
             vec3 dentinR1 = cross(dentinDy, normal), dentinR2 = cross(normal, dentinDx);
             float dentinDet = dot(dentinDx, dentinR1);
             vec3 dentinGradient = sign(dentinDet) * (dFdx(dentinHeight) * dentinR1 + dFdy(dentinHeight) * dentinR2);
             normal = normalize(max(abs(dentinDet), 0.00000001) * normal - dentinGradient);
-          `);
+          `)
+          .replace("#include <lights_physical_fragment>", "#include <lights_physical_fragment>\nmaterial.clearcoat *= 1.0 - dentinBlend;");
       };
-      material.customProgramCacheKey = () => "dava-fine-dentin-v2";
+      material.customProgramCacheKey = () => "dava-continuous-dentin-v3";
     }
     return material;
   };
@@ -166,7 +167,7 @@ function Part({ part }: { part: ModelPart }) {
 }
 
 function DentalModel({ progress = 0, onReady, idle, reducedMotion }: Pick<TeethCanvasProps, "progress" | "onReady" | "reducedMotion"> & { idle: boolean }) {
-  const { scene } = useGLTF("/models/dava-dentition.glb");
+  const { scene } = useGLTF(DENTITION_MODEL_URL);
   const model = useMemo(() => prepareModel(scene), [scene]);
   const group = useRef<THREE.Group>(null);
   const elapsed = useRef(0);
@@ -210,7 +211,7 @@ function DentalModel({ progress = 0, onReady, idle, reducedMotion }: Pick<TeethC
       </group>
       <group position={position} quaternion={quaternion} scale={scale}>
         <Part part={model.crown} />
-        <group position={[0, model.rootAttachmentY, 0]} scale={[1 - absorb * 0.3, Math.max(0.001, 1 - absorb), 1 - absorb * 0.3]} visible={absorb < 0.999}>
+        <group position={[0, model.rootAttachmentY, 0]} scale={[1, Math.max(0.001, 1 - absorb), 1]} visible={absorb < 0.999}>
           <group position={[0, -model.rootAttachmentY, 0]}><Part part={model.roots} /></group>
         </group>
       </group>

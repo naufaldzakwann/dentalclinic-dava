@@ -64,10 +64,11 @@ Aset aktif `public/models/dava-dentition.glb` dibuat secara prosedural dari awal
 
 ```bash
 npm run models:generate # bangun ulang GLB dari sumber
+npm run models:verify   # periksa mesh tertutup dan sambungan mahkota–akar
 npm run db:sync         # sinkronkan dokter/layanan tanpa mengubah booking
 ```
 
-Generator berada di `scripts/generate-dental-model.mjs`, dengan geometri mahkota di `scripts/dental-molar.mjs` dan akar di `scripts/dental-roots.mjs`. Render PNG tersedia di `docs/previews/`. Aset memakai mesh dan material lokal tanpa HDR atau tekstur dari jaringan.
+Generator berada di `scripts/generate-dental-model.mjs`. Profil gigi seri, taring, premolar, dan molar berada di `scripts/dental-crowns.mjs`; kontur gusi di `scripts/dental-gums.mjs`. Geraham pembuka memakai `scripts/dental-molar.mjs`, `scripts/dental-roots.mjs`, dan sambungan mahkota–akar di `scripts/dental-hero.mjs`. Kedua bagian berbagi posisi, normal, dan warna pada batas sambungan; perubahan kilap menuju akar dibuat bertahap di viewer. Render PNG tersedia di `docs/previews/`. Aset memakai mesh dan material lokal tanpa HDR atau tekstur dari jaringan.
 
 Aset lama `public/models/teeth-real.glb` masih tersimpan sebagai arsip, tetapi tidak dipakai renderer. Aset tersebut berasal dari [“Human mouth detailed”](https://commons.wikimedia.org/wiki/File:3D_model_of_the_human_mouth.stl) oleh Mince (CC BY 4.0), melalui ekstraksi dan penyusunan ulang `scripts/extract-teeth.mjs`.
 

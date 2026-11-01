@@ -18,7 +18,7 @@ function segmentDistance(x, z, start, end) {
   return Math.hypot(x - start[0] - t * dx, z - start[1] - t * dz);
 }
 
-export function makeReferenceMolar(spec = { w: .60, d: .60, h: .42 }) {
+export function makeReferenceMolar(spec = { w: .60, d: .60, h: .42 }, { closeNeck = true } = {}) {
   const width = spec.w, depth = spec.d, height = spec.h * .965;
   const angularSegments = 128, sideRings = 58, capRings = 64;
   const vertices = [], indices = [], colors = [];
@@ -133,10 +133,12 @@ export function makeReferenceMolar(spec = { w: .60, d: .60, h: .42 }) {
     join(previous, ring);
     previous = ring;
   }
-  const center = addVertex(0, occlusalHeight(0, 0), 0), neckCenter = addVertex(0, -.025, 0);
+  const center = addVertex(0, occlusalHeight(0, 0), 0);
+  const neckCenter = closeNeck ? addVertex(0, -.025, 0) : null;
   for (let segment = 0; segment < angularSegments; segment++) {
     const next = (segment + 1) % angularSegments;
-    indices.push(previous[segment], center, previous[next], neckRing[segment], neckRing[next], neckCenter);
+    indices.push(previous[segment], center, previous[next]);
+    if (closeNeck) indices.push(neckRing[segment], neckRing[next], neckCenter);
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
@@ -152,5 +154,7 @@ export function makeReferenceMolar(spec = { w: .60, d: .60, h: .42 }) {
     normals.setXYZ(segment, normal.x, normal.y, normal.z);
   }
   geometry.computeBoundingBox();
+  geometry.userData.cervicalRing = neckRing;
+  geometry.userData.cervicalSegments = angularSegments;
   return geometry;
 }

@@ -91,7 +91,7 @@ const doc = new Document();
 const buffer = doc.createBuffer("dava-original-dentition");
 const scene = doc.createScene("Dava dentition");
 const enamel = doc.createMaterial("enamel_ivory").setBaseColorFactor([1, 1, 1, 1]).setMetallicFactor(0).setRoughnessFactor(.22);
-const gingiva = doc.createMaterial("gingiva_rose").setBaseColorFactor([1, 1, 1, 1]).setMetallicFactor(0).setRoughnessFactor(.42);
+const gingiva = doc.createMaterial("gingiva_rose").setBaseColorFactor([1, 1, 1, 1]).setMetallicFactor(0).setRoughnessFactor(.50);
 const dentin = doc.createMaterial("root_dentin").setBaseColorFactor([1, 1, 1, 1]).setMetallicFactor(0).setRoughnessFactor(.22);
 let totalVertices = 0, totalTriangles = 0;
 const mouthBounds = new THREE.Box3();

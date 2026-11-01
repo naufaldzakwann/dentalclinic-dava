@@ -62,10 +62,10 @@ export function makeArchCrown(spec, direction = 1) {
       return h * (1 - .060 * Math.abs(x) ** 5 - .23 * z * z + .005 * x);
     }
     if (canine) {
-      // The long mesial/distal cusp slopes converge on a small rounded tip.
-      // A conic distance gives a clear taring silhouette, unlike a wide dome.
-      const cuspDistance = Math.sqrt(x * x + .78 * z * z + .045 ** 2) - .045;
-      return h - h * .35 * cuspDistance + h * .012 * x;
+      // Shorter cusp slopes and a broad rounded apex retain a subtle canine
+      // point without the spear-like tip of the previous narrow conic cap.
+      const cuspDistance = Math.sqrt(x * x + .78 * z * z + .18 ** 2) - .18;
+      return h - h * .27 * cuspDistance + h * .012 * x;
     }
     if (premolar) {
       const buccal = gaussian(x, z, -.035, .49, .52, .39);
@@ -156,6 +156,6 @@ export function makeArchCrown(spec, direction = 1) {
   if (direction < 0) geometry.rotateX(Math.PI);
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
-  geometry.userData = { originalGeometry: true, kind, surface: "Continuous rounded shoulder loft", cusp: canine ? "Single conic cusp with softened apex" : undefined };
+  geometry.userData = { originalGeometry: true, kind, surface: "Continuous rounded shoulder loft", cusp: canine ? "Subtle single cusp with broad rounded apex" : undefined };
   return geometry;
 }

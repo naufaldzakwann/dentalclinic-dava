@@ -60,7 +60,7 @@ Cari komentar `TODO` di kode. Ringkasnya:
 
 ## Aset 3D
 
-Aset aktif `public/models/dava-dentition.glb` dibuat secara prosedural dari awal untuk Dava Dental Care: 28 mahkota gigi kompak, dua basis gusi membulat, dan geraham terpisah dengan dua akar pipih asimetris. Mahkota geraham memakai lima tonjolan cembung dan alur kunyah bercabang. Bentuk direkonstruksi berdasarkan video pengguna; model ini merupakan ilustrasi dan tidak identik dengan aset asli pada video. Geometri aktif tidak memakai model scan lama.
+Aset aktif `public/models/dava-dentition.glb` dibuat secara prosedural dari awal untuk Dava Dental Care: 28 mahkota gigi kompak dengan ujung taring membulat, dua gusi yang mengikuti leher dan sela gigi, serta geraham terpisah dengan dua akar pipih asimetris. Dinding gusi menipis menuju pangkal dengan relief akar, warna merah muda bertahap, dan tekstur permukaan halus. Mahkota geraham memakai lima tonjolan cembung dan alur kunyah bercabang. Bentuk direkonstruksi berdasarkan video pengguna; model ini merupakan ilustrasi dan tidak identik dengan aset asli pada video. Geometri aktif tidak memakai model scan lama.
 
 ```bash
 npm run models:generate # bangun ulang GLB dari sumber

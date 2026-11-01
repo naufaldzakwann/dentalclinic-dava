@@ -29,7 +29,7 @@ type ModelPart = {
 type FitBounds = { horizontalRadius: number; halfHeight: number };
 const DEFAULT_HERO_SLOT = "tooth_U_M1_R";
 const REST_YAW = -0.14;
-const DENTITION_MODEL_URL = "/models/dava-dentition.glb?v=continuous-dentition-2";
+const DENTITION_MODEL_URL = "/models/dava-dentition.glb?v=natural-gingiva-3";
 const START_ROTATION = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.22, 0.12, -0.07));
 
 function capturePart(mesh: THREE.Mesh): ModelPart {
@@ -50,6 +50,31 @@ function capturePart(mesh: THREE.Mesh): ModelPart {
       : source.clone();
     material.name = source.name;
     if (source.name === "enamel_ivory") material.customProgramCacheKey = () => "dava-ivory-enamel-v1";
+    if (source.name === "gingiva_rose") {
+      material.roughness = .50;
+      material.envMapIntensity = .45;
+      material.onBeforeCompile = (shader) => {
+        shader.vertexShader = `varying vec3 vGingivaPosition;\n${shader.vertexShader}`.replace("#include <begin_vertex>", "#include <begin_vertex>\nvGingivaPosition = position;");
+        shader.fragmentShader = `
+          varying vec3 vGingivaPosition;
+          float gingivaHash(vec3 p) { p = fract(p * 0.1031); p += dot(p, p.yzx + 33.33); return fract((p.x + p.y) * p.z); }
+          float gingivaNoise(vec3 p) {
+            vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+            return mix(mix(mix(gingivaHash(i), gingivaHash(i+vec3(1,0,0)), f.x), mix(gingivaHash(i+vec3(0,1,0)), gingivaHash(i+vec3(1,1,0)), f.x), f.y), mix(mix(gingivaHash(i+vec3(0,0,1)), gingivaHash(i+vec3(1,0,1)), f.x), mix(gingivaHash(i+vec3(0,1,1)), gingivaHash(i+vec3(1,1,1)), f.x), f.y), f.z);
+          }
+          ${shader.fragmentShader}`
+          .replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nfloat gingivaGrain = gingivaNoise(vGingivaPosition * 135.0);\nroughnessFactor += (gingivaGrain - 0.5) * 0.035;")
+          .replace("#include <normal_fragment_maps>", `#include <normal_fragment_maps>
+            float gingivaHeight = (gingivaGrain - 0.5) * 0.00012;
+            vec3 gingivaDx = dFdx(-vViewPosition), gingivaDy = dFdy(-vViewPosition);
+            vec3 gingivaR1 = cross(gingivaDy, normal), gingivaR2 = cross(normal, gingivaDx);
+            float gingivaDet = dot(gingivaDx, gingivaR1);
+            vec3 gingivaGradient = sign(gingivaDet) * (dFdx(gingivaHeight) * gingivaR1 + dFdy(gingivaHeight) * gingivaR2);
+            normal = normalize(max(abs(gingivaDet), 0.00000001) * normal - gingivaGradient);
+          `);
+      };
+      material.customProgramCacheKey = () => "dava-soft-gingiva-v1";
+    }
     if (source.name === "root_dentin") {
       // Match enamel exactly at the shared cervical ring, then gradually
       // become matte dentin down the root instead of drawing a material seam.

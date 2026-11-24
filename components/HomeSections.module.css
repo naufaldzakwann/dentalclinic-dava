@@ -1,6 +1,6 @@
 .welcome { display: grid; grid-template-columns: 1.15fr 1fr; align-items: center; gap: 8%; padding-block: 100px 78px; scroll-margin-top: 85px; }
 .welcomeCopy h1 { font-size: clamp(46px, 5.45vw, 78px); line-height: 1.1; letter-spacing: -.065em; font-weight: 500; margin: 24px 0 27px; text-wrap: initial; }
-.welcomeCopy h1 span { color: var(--color-brand-600); }
+.welcomeCopy h1 > span:not([data-heading-word]) { color: var(--color-brand-600); }
 .intro { max-width: 480px; font-size: 15px; line-height: 1.9; color: var(--color-ink-soft); }
 .dot { width: 6px; height: 6px; background: var(--color-brand-600); display: inline-block; border-radius: 50%; flex-shrink: 0; }
 .actions { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; margin-top: 30px; }
@@ -22,7 +22,8 @@
 .careStrip svg { color: var(--color-brand-500); }
 .sectionHeader { display: flex; align-items: end; justify-content: space-between; gap: 60px; margin-bottom: 45px; }
 .sectionHeader :global(.body-copy) { max-width: 350px; margin-bottom: 5px; }
-.sectionHeader h2 span, .servicesIntro h2 span, .approachCopy h2 span, .faq h2 span { color: var(--color-brand-600); }
+.sectionHeader h2 > span:not([data-heading-word]), .servicesIntro h2 > span:not([data-heading-word]),
+.approachCopy h2 > span:not([data-heading-word]), .faq h2 > span:not([data-heading-word]) { color: var(--color-brand-600); }
 .locations { padding-block: 92px; background: var(--color-paper); margin-top: 75px; }
 .clinicGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .clinicCard { background: var(--surface); border-radius: 18px; border: 1px solid var(--line); padding: 27px 30px 0; transition: border-color .2s, box-shadow .2s; }
@@ -101,7 +102,7 @@
 .ctaInner { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 9%; background: #4c2c73; color: white; padding: 60px; border-radius: 22px; }
 .ctaCopy :global(.eyebrow) { color: #d7c8ee; font-size: 9px; }
 .ctaCopy h2 { font-size: clamp(32px, 3.6vw, 49px); font-weight: 500; letter-spacing: -.055em; line-height: 1.17; }
-.ctaCopy h2 span { color: #d7c8ee; }
+.ctaCopy h2 > span:not([data-heading-word]) { color: #d7c8ee; }
 .ctaCopy > p:last-child { font-size: 12px; line-height: 1.9; color: #ded2ed; max-width: 330px; margin-top: 22px; }
 .ctaLinks { display: grid; gap: 13px; }
 .ctaLinks > a { display: flex; align-items: center; justify-content: space-between; gap: 15px; min-height: 69px; border: 1px solid #d7c8ee50; border-radius: 12px; padding: 18px 21px; font-size: 14px; }

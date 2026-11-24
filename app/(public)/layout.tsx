@@ -1,8 +1,10 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import MotionDirector from "@/components/MotionDirector";
 import WhatsAppFab from "@/components/WhatsAppFab";
 import { SitePreferencesProvider } from "@/components/SitePreferences";
 import { T } from "@/components/SitePreferences";
+import "lenis/dist/lenis.css";
 
 export default function PublicLayout({
   children,
@@ -19,6 +21,7 @@ export default function PublicLayout({
         <main id="konten-utama">{children}</main>
         <Footer />
         <WhatsAppFab />
+        <MotionDirector />
       </>
     </SitePreferencesProvider>
   );

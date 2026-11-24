@@ -1,7 +1,7 @@
 .appointment-layout { display: grid; grid-template-columns: minmax(0, .83fr) minmax(0, 1.17fr); align-items: start; gap: clamp(44px, 7vw, 100px); padding-block: 76px 112px; }
 .appointment-intro { padding-top: 18px; }
 .appointment-intro h1 { font-size: clamp(42px, 4.9vw, 66px); font-weight: 500; line-height: 1.1; letter-spacing: -.055em; max-width: 460px; }
-.appointment-intro h1 span { color: var(--color-brand-600); }
+.appointment-intro h1 > span:not([data-heading-word]) { color: var(--color-brand-600); }
 .appointment-intro > p { margin-top: 24px; max-width: 370px; font-size: 14px; line-height: 1.9; color: var(--color-ink-soft); }
 .appointment-process { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); display: grid; gap: 24px; max-width: 360px; }
 .appointment-process li { display: flex; align-items: flex-start; gap: 16px; }

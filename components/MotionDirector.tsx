@@ -1,74 +1,95 @@
 "use client";
 
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+import Lenis from "lenis";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { setupCardMotion } from "./card-motion";
+import { useSitePreferences } from "./SitePreferences";
 
-const motionTargets =
-  "header a, header button, main h1, main h2, main h3, main p, main article, main figure, main details, main form, main button, main a, main li, footer h2, footer p, footer a, footer li, .whatsapp-fab";
+gsap.registerPlugin(ScrollTrigger);
 
-/** Adds lightweight, staggered entrance motion to public page content. */
+const allowMotion = "(prefers-reduced-motion: no-preference)";
+
 export default function MotionDirector() {
+  const pathname = usePathname();
+  const { language, ready } = useSitePreferences();
+
   useEffect(() => {
-    const root = document.body;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const media = gsap.matchMedia();
+    media.add(allowMotion, () => {
+      const lenis = new Lenis({
+        lerp: 0.12,
+        stopInertiaOnNavigate: true,
+        prevent: (node) => node instanceof HTMLTextAreaElement && node.scrollHeight > node.clientHeight,
+      });
+      const tick = (seconds: number) => lenis.raf(seconds * 1000);
+      const releaseAnchorScroll = (event: MouseEvent) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (!(event.target instanceof Element)) return;
 
-    let observer: IntersectionObserver | undefined;
-    const animate = (element: Element) => {
-      if (!(element instanceof HTMLElement)) return;
-      if (element.classList.contains("motion-ready")) return;
+        const link = event.target.closest<HTMLAnchorElement>("a[href]");
+        if (!link?.hash || link.target || link.origin !== location.origin || link.pathname !== location.pathname) return;
 
-      const siblings = Array.from(element.parentElement?.children ?? []).filter((sibling) =>
-        sibling.matches(motionTargets),
-      );
-      const index = Math.max(0, siblings.indexOf(element));
-      element.style.setProperty("--motion-index", String(index));
-      element.classList.add("motion-ready");
+        // Let the browser or Next.js handle the fragment after wheel easing stops.
+        lenis.scrollTo(lenis.actualScroll, { immediate: true });
+      };
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add(tick);
+      gsap.ticker.lagSmoothing(0);
+      document.addEventListener("click", releaseAnchorScroll, true);
 
-      if (!observer) {
-        element.classList.add("motion-visible");
-        return;
-      }
+      return () => {
+        document.removeEventListener("click", releaseAnchorScroll, true);
+        gsap.ticker.remove(tick);
+        gsap.ticker.lagSmoothing(500, 33);
+        lenis.destroy();
+      };
+    });
 
-      observer.observe(element);
-    };
+    return () => media.revert();
+  }, []);
 
-    if ("IntersectionObserver" in window) {
-      observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
-            entry.target.classList.add("motion-visible");
-            observer?.unobserve(entry.target);
-          }
-        },
-        { rootMargin: "0px 0px -6% 0px", threshold: 0.06 },
-      );
-    }
+  useEffect(() => {
+    const main = document.getElementById("konten-utama");
+    if (!main) return;
 
-    const scan = (node: ParentNode) => {
-      if (node instanceof Element && node.matches(motionTargets)) animate(node);
-      node.querySelectorAll(motionTargets).forEach(animate);
-    };
+    const media = gsap.matchMedia();
+    media.add(allowMotion, () => setupCardMotion(main));
+    return () => media.revert();
+  }, [pathname]);
 
-    scan(root);
-    const mutations = new MutationObserver((records) => {
-      records.forEach((record) => {
-        record.addedNodes.forEach((node) => {
-          if (node instanceof Element) scan(node);
-        });
-        record.removedNodes.forEach((node) => {
-          if (!(node instanceof Element)) return;
-          if (node.classList.contains("motion-ready")) observer?.unobserve(node);
-          node.querySelectorAll(".motion-ready").forEach((element) => observer?.unobserve(element));
+  useEffect(() => {
+    if (!ready) return;
+    const main = document.getElementById("konten-utama");
+    if (!main) return;
+
+    const media = gsap.matchMedia();
+    media.add(allowMotion, () => {
+      main.querySelectorAll("h1, h2").forEach((heading) => {
+        const words = heading.querySelectorAll("[data-heading-word]");
+        if (!words.length) return;
+
+        gsap.from(words, {
+          opacity: 0,
+          yPercent: 40,
+          duration: 0.55,
+          stagger: 0.065,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: heading,
+            start: "top 90%",
+            once: true,
+            fastScrollEnd: true,
+          },
         });
       });
+      ScrollTrigger.refresh(true);
     });
-    mutations.observe(root, { childList: true, subtree: true });
 
-    return () => {
-      mutations.disconnect();
-      observer?.disconnect();
-    };
-  }, []);
+    return () => media.revert();
+  }, [language, pathname, ready]);
 
   return null;
 }

@@ -31,7 +31,7 @@ export default function PrivacyPage() {
   return <div className="page-shell pb-20 sm:pb-28">
     <header className="page-intro">
       <p className="eyebrow"><Copy id="Informasi situs" en="Site information" /></p>
-      <h1 className="display-title mt-5"><Copy id="Kebijakan privasi." en="Privacy policy." /></h1>
+      <h1 className="display-title mt-5"><Copy words id="Kebijakan privasi." en="Privacy policy." /></h1>
       <p className={styles.introNote}><Copy id="Diperbarui 1 November 2026" en="Updated 1 November 2026" /></p>
     </header>
 
@@ -42,9 +42,9 @@ export default function PrivacyPage() {
       </aside>
       <div className={styles.privacyContent}>
         <p className={styles.privacyLead}><Copy id="Kami ingin Anda memahami apa yang terjadi pada informasi saat merencanakan kunjungan melalui situs ini." en="We want you to understand what happens to your information when you plan a visit through this site." /></p>
-        {sections.map(section => <section key={section.id} id={section.id} className={styles.privacySection}><h2><Copy id={section.title} en={section.en} /></h2>{section.paragraphs.map(paragraph => <p key={paragraph.en}><Copy id={paragraph.id} en={paragraph.en} /></p>)}</section>)}
+        {sections.map(section => <section key={section.id} id={section.id} className={styles.privacySection}><h2><Copy words id={section.title} en={section.en} /></h2>{section.paragraphs.map(paragraph => <p key={paragraph.en}><Copy id={paragraph.id} en={paragraph.en} /></p>)}</section>)}
         <section className={styles.privacySection}>
-          <h2><Copy id="Pertanyaan tentang data Anda" en="Questions about your information" /></h2>
+          <h2><Copy words id="Pertanyaan tentang data Anda" en="Questions about your information" /></h2>
           <p><Copy id="Pilih lokasi praktik untuk menghubungi tim yang menangani kunjungan Anda. Sebutkan bahwa pertanyaan Anda berkaitan dengan data pribadi agar percakapan dapat diarahkan dengan tepat." en="Choose the practice location to contact the team handling your visit. Mention that your question concerns personal information so the conversation can be directed appropriately." /></p>
           <Link href="/kontak"><Copy id="Lihat lokasi & kontak" en="View locations & contact" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link>
         </section>

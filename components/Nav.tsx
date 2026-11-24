@@ -79,7 +79,7 @@ export default function Nav() {
         </button>
       </div>
     </div>
-    {open && <nav ref={menu} id="mobile-navigation" className={`mobile-navigation ${styles.mobilePanel}`} aria-label={t("nav.mobile", "Menu seluler")}>
+    {open && <nav ref={menu} id="mobile-navigation" className={`mobile-navigation ${styles.mobilePanel}`} data-lenis-prevent aria-label={t("nav.mobile", "Menu seluler")}>
       <div className={`page-shell ${styles.mobileInner}`}>
         <div className={styles.mobileLinks}>
           {links.map(link => <Link key={link.href} href={link.href} aria-current={active(link.href) ? "page" : undefined} onClick={() => setOpen(false)}>

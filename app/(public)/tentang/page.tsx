@@ -24,7 +24,7 @@ export default function TentangPage() {
     <header className={styles.doctorIntro}>
       <p className="eyebrow"><Copy id="Tentang dokter" en="Meet your dentist" /></p>
       <h1 className={styles.doctorName} aria-label={site.name}>
-        <span>{doctorName}</span>{" "}<span className={styles.doctorQualification}>{qualification}</span>
+        <span><Copy words id={doctorName} /></span>{" "}<span className={styles.doctorQualification}><Copy words id={qualification} /></span>
       </h1>
       <div className={styles.doctorIntroBottom}>
         <div className={styles.doctorIdentity}>
@@ -43,7 +43,7 @@ export default function TentangPage() {
       </div>
       <div className={styles.doctorCopy}>
         <span className="eyebrow"><Copy id="Konservasi gigi" en="Conservative dentistry" /></span>
-        <h2 className="section-heading mt-4"><Copy id="Memahami kondisi gigi sebelum menentukan langkah." en="Understand your teeth before deciding what’s next." /></h2>
+        <h2 className="section-heading mt-4"><Copy words id="Memahami kondisi gigi sebelum menentukan langkah." en="Understand your teeth before deciding what’s next." /></h2>
         <p><Copy id="Konservasi gigi berfokus pada perawatan dan pemulihan gigi, termasuk restorasi serta perawatan saluran akar. Pemeriksaan menjadi dasar untuk menilai gigi yang masih dapat dipertahankan dan pilihan penanganannya." en="Conservative dentistry focuses on treating and restoring teeth, including restorations and root canal treatment. An examination helps assess which teeth can be preserved and the available treatment options." /></p>
         <p><Copy id="Saat berkonsultasi, Anda dapat membahas keluhan, menanyakan tahapan perawatan, dan menyampaikan kekhawatiran. Rencana perawatan mengikuti kondisi gigi serta kebutuhan Anda." en="During your consultation, you can discuss your concerns, ask about treatment steps, and share any worries. Your care plan follows the condition of your teeth and your needs." /></p>
         <div className={styles.specialty}><ToothIcon width={21} height={21} aria-hidden="true" /><span><Copy id="Konsultasi tersedia untuk lokasi Pekanbaru dan Taluk Kuantan. Konfirmasikan jadwal dokter melalui WhatsApp." en="Consultations are available for Pekanbaru and Taluk Kuantan. Confirm the dentist’s schedule through WhatsApp." /></span></div>
@@ -53,10 +53,10 @@ export default function TentangPage() {
 
     <section className={styles.section}>
       <div className={styles.sectionIntro}>
-        <div><p className="eyebrow"><Copy id="Saat Anda berkunjung" en="During your visit" /></p><h2 className="section-heading mt-3"><Copy id="Ada ruang untuk bertanya." en="There’s room for your questions." /></h2></div>
+        <div><p className="eyebrow"><Copy id="Saat Anda berkunjung" en="During your visit" /></p><h2 className="section-heading mt-3"><Copy words id="Ada ruang untuk bertanya." en="There’s room for your questions." /></h2></div>
         <p className="body-copy"><Copy id="Kunjungan pertama membantu Anda dan dokter menyusun langkah yang sesuai. Berikut gambaran prosesnya." en="Your first visit helps you and your dentist plan the next steps. Here’s an outline of the process." /></p>
       </div>
-      <div className={styles.steps}>{steps.map((step, index) => <article key={step.titleEn} className={styles.step}><p className={styles.rowNumber}>0{index + 1}</p><h3><Copy id={step.title} en={step.titleEn} /></h3><p><Copy id={step.body} en={step.bodyEn} /></p></article>)}</div>
+      <div className={styles.steps}>{steps.map((step, index) => <article key={step.titleEn} className={styles.step} data-motion-card><p className={styles.rowNumber}>0{index + 1}</p><h3><Copy id={step.title} en={step.titleEn} /></h3><p><Copy id={step.body} en={step.bodyEn} /></p></article>)}</div>
     </section>
   </div>;
 }

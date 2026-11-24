@@ -15,7 +15,7 @@ export default function BookingPage() {
   return <div className={`page-shell ${styles["appointment-layout"]}`}>
     <div className={styles["appointment-intro"]}>
       <div className="eyebrow"><Copy id="JANJI TEMU" en="YOUR APPOINTMENT" /></div>
-      <h1><Copy id="Kunjungan Anda," en="Your visit," /><br /><span><Copy id="dimulai di sini." en="starts here." /></span></h1>
+      <h1><Copy words id="Kunjungan Anda," en="Your visit," /><br /><span><Copy words id="dimulai di sini." en="starts here." /></span></h1>
       <p><Copy id="Pilih lokasi praktik, lalu ceritakan kebutuhan Anda. Kami akan membantu mengatur waktu kunjungan melalui WhatsApp." en="Choose a practice and tell us what you need. We'll help arrange a time for your visit on WhatsApp." /></p>
       <ol className={styles["appointment-process"]}>
         <li><span>01</span><div><strong><Copy id="Pilih praktik terdekat" en="Choose your practice" /></strong><p><Copy id="Pekanbaru atau Taluk Kuantan, sesuai rencana kunjungan Anda." en="Pekanbaru or Taluk Kuantan, whichever suits your visit." /></p></div></li>

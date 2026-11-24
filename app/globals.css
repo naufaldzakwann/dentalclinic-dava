@@ -43,6 +43,7 @@ button, summary, select { cursor: pointer; }
 button:disabled { cursor: not-allowed; }
 a, button, input, select, textarea { transition: color .2s, background-color .2s, border-color .2s, box-shadow .2s, opacity .2s; }
 h1, h2 { text-wrap: balance; }
+[data-heading-word] { display: inline-block; }
 ::selection { background: var(--color-brand-200); color: var(--color-ink); }
 :focus-visible { outline: 2px solid var(--color-brand-500); outline-offset: 5px; }
 .tabular { font-variant-numeric: tabular-nums; }

@@ -84,7 +84,7 @@ export default function TeethExperience() {
   }, []);
 
   return <>
-    {loading && <div className={`clinic-loader ${welcome ? "loader-is-welcome" : ""} ${exiting ? "loader-exiting" : ""}`} role="status" aria-live="polite" aria-label={english ? "Preparing the dental experience" : "Menyiapkan tampilan klinik"}>
+    {loading && <div className={`clinic-loader ${welcome ? "loader-is-welcome" : ""} ${exiting ? "loader-exiting" : ""}`} data-lenis-prevent role="status" aria-live="polite" aria-label={english ? "Preparing the dental experience" : "Menyiapkan tampilan klinik"}>
       <div className="loader-top"><span className="loader-brand">dava<span>.</span></span><span className="loader-spark" aria-hidden><i /><i /><i /><i /></span></div>
       <div className="loader-marquee" aria-hidden><div><span>CARE FOR YOUR SMILE <i>✦</i> </span><span>CARE FOR YOUR SMILE <i>✦</i> </span></div></div>
       {welcome ? <div className="loader-welcome"><span>WELCOME<span>.</span></span><p>{english ? "Your smile deserves a little care." : "Senyum Anda, perhatian kami."}</p></div> : <div className="loader-pill"><span className="loader-tooth"><ToothIcon width={26} height={26} aria-hidden /></span><span>{english ? "PREPARING YOUR SMILE" : "MENYIAPKAN SENYUM ANDA"}</span><span className="loader-percentage">{Math.round(displayProgress)}<small>%</small></span></div>}

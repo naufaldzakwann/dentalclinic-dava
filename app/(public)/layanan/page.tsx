@@ -27,7 +27,7 @@ export default function LayananPage() {
     <header className={styles.treatmentIntro}>
       <p className="eyebrow"><Copy id="Layanan perawatan" en="Our treatments" /></p>
       <div className={styles.treatmentIntroGrid}>
-        <h1 className={styles.treatmentTitle}><span><Copy id="Perawatan gigi," en="Dental care," /></span><span><Copy id="sesuai kebutuhan." en="for your needs." /></span></h1>
+        <h1 className={styles.treatmentTitle}><span><Copy words id="Perawatan gigi," en="Dental care," /></span><span><Copy words id="sesuai kebutuhan." en="for your needs." /></span></h1>
         <div className={styles.treatmentIntroCopy}>
           <p><Copy id="Mulai dari pemeriksaan, temukan perawatan yang sesuai dengan kondisi gigi Anda. Kami membantu menjelaskan pilihan dan langkah selanjutnya." en="Start with an examination to find care that suits your teeth. We’ll help explain your options and the next steps." /></p>
           <Link href="/booking?service=konsultasi" className="btn-secondary"><Copy id="Mulai dengan konsultasi" en="Start with a consultation" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link>
@@ -40,7 +40,7 @@ export default function LayananPage() {
     </nav>
 
     <div className={styles.serviceList}>
-      {treatments.map((item, index) => <article key={item.slug} id={item.slug} className={styles.serviceRow}>
+      {treatments.map((item, index) => <article key={item.slug} id={item.slug} className={styles.serviceRow} data-motion-card>
         <span className={styles.rowNumber} aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
         <div><h2><T id={`service.${item.slug}.name`} fallback={services.find(service => service.slug === item.slug)!.name} /></h2><p className={styles.serviceCategory}><Copy id={item.category} en={item.categoryEn} /></p></div>
         <div className={styles.serviceDetails}><p><Copy id={item.body} en={item.bodyEn} /></p><Link href={`/booking?service=${item.slug}`}><Copy id="Buat janji untuk layanan ini" en="Arrange a visit for this treatment" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link></div>
@@ -48,7 +48,7 @@ export default function LayananPage() {
     </div>
 
     <section className={styles.callout}>
-      <div><p className="eyebrow"><Copy id="Konsultasi pertama" en="Your first consultation" /></p><h2 className="section-heading mt-3"><Copy id="Belum tahu perawatan yang dibutuhkan?" en="Unsure which treatment you need?" /></h2><p><Copy id="Pilih konsultasi dan ceritakan keluhan Anda. Jadwal, biaya, serta ketersediaan layanan di lokasi pilihan akan dikonfirmasi melalui WhatsApp." en="Choose a consultation and tell us about your concern. The schedule, fees, and treatment availability at your chosen location will be confirmed through WhatsApp." /></p></div>
+      <div><p className="eyebrow"><Copy id="Konsultasi pertama" en="Your first consultation" /></p><h2 className="section-heading mt-3"><Copy words id="Belum tahu perawatan yang dibutuhkan?" en="Unsure which treatment you need?" /></h2><p><Copy id="Pilih konsultasi dan ceritakan keluhan Anda. Jadwal, biaya, serta ketersediaan layanan di lokasi pilihan akan dikonfirmasi melalui WhatsApp." en="Choose a consultation and tell us about your concern. The schedule, fees, and treatment availability at your chosen location will be confirmed through WhatsApp." /></p></div>
       <Link href="/booking?service=konsultasi" className="btn-primary"><Copy id="Jadwalkan konsultasi" en="Arrange a consultation" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link>
     </section>
   </div>;

@@ -74,20 +74,20 @@ export default function GaleriPage() {
     <header className="page-intro">
       <p className="eyebrow"><Copy id="Galeri ilustrasi" en="Illustrated gallery" /></p>
       <div className={styles.introGrid}>
-        <h1 className="display-title"><Copy id="Membayangkan kunjungan Anda." en="Picture your dental visit." /></h1>
+        <h1 className="display-title"><Copy words id="Membayangkan kunjungan Anda." en="Picture your dental visit." /></h1>
         <div><p className="body-copy"><Copy id="Sebuah seri ilustrasi tentang kunjungan ke dokter gigi, mulai dari percakapan hingga persiapan perawatan." en="A series of illustrations about visiting the dentist, beginning with a conversation and preparing for care." /></p><p className={styles.introNote}><Copy id="Visual di halaman ini merupakan ilustrasi, bukan foto ruang atau fasilitas klinik." en="These visuals are illustrations, not photographs of the practice or its facilities." /></p></div>
       </div>
     </header>
 
     <div className={styles.galleryGrid}>
-      {scenes.map((scene, index) => <figure key={scene.room}>
+      {scenes.map((scene, index) => <figure key={scene.room} data-motion-card>
         <div className={styles.galleryArt}><RoomIllustration room={scene.room} /><span className={styles.artBadge}><Copy id="Ilustrasi" en="Illustration" /> / 0{index + 1}</span></div>
         <figcaption className={styles.galleryCaption}><span className={styles.rowNumber} aria-hidden="true">0{index + 1}</span><div><h2><Copy id={scene.id} en={scene.en} /></h2><p><Copy id={scene.body} en={scene.bodyEn} /></p></div></figcaption>
       </figure>)}
     </div>
 
     <section className={styles.callout}>
-      <div><p className="eyebrow"><Copy id="Rencanakan kunjungan" en="Plan your visit" /></p><h2 className="section-heading mt-3"><Copy id="Sampaikan kebutuhan Anda melalui WhatsApp." en="Tell us what you need on WhatsApp." /></h2><p><Copy id="Pilih Pekanbaru atau Taluk Kuantan, lalu diskusikan jadwal dengan tim klinik." en="Choose Pekanbaru or Taluk Kuantan, then discuss the schedule with the clinic team." /></p></div>
+      <div><p className="eyebrow"><Copy id="Rencanakan kunjungan" en="Plan your visit" /></p><h2 className="section-heading mt-3"><Copy words id="Sampaikan kebutuhan Anda melalui WhatsApp." en="Tell us what you need on WhatsApp." /></h2><p><Copy id="Pilih Pekanbaru atau Taluk Kuantan, lalu diskusikan jadwal dengan tim klinik." en="Choose Pekanbaru or Taluk Kuantan, then discuss the schedule with the clinic team." /></p></div>
       <Link href="/booking" className="btn-primary"><Copy id="Buat janji temu" en="Arrange a visit" /><ArrowRightIcon width={18} height={18} aria-hidden="true" /></Link>
     </section>
   </div>;
